@@ -4,8 +4,11 @@ TextureUnpacker
 # Overview
 Use this script to unpack **.png** sprites from the sprite atlas (providing a **.plist** or **.json** data file and a **.png** file) packed by [TexturePacker](http://www.codeandweb.com/texturepacker/).
 
+Also suport packed by [Coco Studio](http://www.cocos2d-x.org/wiki/Cocos_Studio)
+
 # Dependencies
   - [Python](http://www.python.org)
+  - [plistlib](https://docs.python.org/2/library/plistlib.html)
   - [Pillow (PIL fork)](https://github.com/python-pillow/Pillow) 
 
 # Usage
@@ -18,9 +21,12 @@ Use this script to unpack **.png** sprites from the sprite atlas (providing a **
 
 ## format 
 
-*optional*
+*optional* Data file format.If omitted **plist** format is assumed.
 
-- Data file format. Valid values are **plist** and **json**. If omitted **plist** format is assumed.
+-  **plist** : Plist file packed by TexturePacker, **default**
+-  **json**	: Json file packed byTexturePacker
+-  **cocos** : Plist file packed by Coco Studio
+
 
 # Examples
 
@@ -43,5 +49,43 @@ Script will generate a folder named **Sprite** containing all the sprites from t
 If you have **Sprite.json** data file instead of the **Sprite.plist** one run the following command:
 
     python unpacker.py Sprite json
+    
+Result will be the same.
+
+### CocoStudio Plist example
+
+If you have **Sprite.plist** data file, it is defferent from the plist which packed by TexturePacker
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+	<dict>
+		<key>frames</key>
+		<dict>
+			<key>xxxx.png</key>
+			<dict>
+				<key>width</key>
+				<integer>32</integer>
+				<key>height</key>
+				<integer>30</integer>
+				<key>originalWidth</key>
+				<integer>32</integer>
+				<key>originalHeight</key>
+				<integer>30</integer>
+				<key>x</key>
+				<integer>0</integer>
+				<key>y</key>
+				<integer>0</integer>
+				<key>offsetX</key>
+				<real>0</real>
+				<key>offsetY</key>
+				<real>0</real>
+			</dict>
+```
+
+run the following command:
+
+    python unpacker.py Sprite cocos
     
 Result will be the same.

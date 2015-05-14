@@ -4,6 +4,7 @@ import sys
 from PIL import Image
 from xml.etree import ElementTree
 import json
+import plistlib
 
 
 def tree_to_dict(tree):
@@ -21,9 +22,9 @@ def tree_to_dict(tree):
     return d
 
 
-def frames_from_data(filename, ext):
-    data_filename = filename + ext
-    if ext == '.plist':
+def frames_from_data(filename, format):
+    if format == 'plist':
+        data_filename = filename + '.plist'
         root = ElementTree.fromstring(open(data_filename, 'r').read())
         plist_dict = tree_to_dict(root[0])
         to_list = lambda x: x.replace('{', '').replace('}', '').split(',')
@@ -55,7 +56,8 @@ def frames_from_data(filename, ext):
             )
         return frames
 
-    elif ext == '.json':
+    elif format == 'json':
+        data_filename = filename + '.json'
         json_data = open(data_filename)
         data = json.load(json_data)
         frames = {}
@@ -88,14 +90,47 @@ def frames_from_data(filename, ext):
             frames[f["filename"]] = d
         json_data.close()
         return frames.items()
+    elif format == 'cocos':
+        data_filename = filename + ".plist"
+        pl = plistlib.readPlist(data_filename)
+        data = pl['frames'].items()
+        frames = {}
+        for k, f in data:
+            x = int(f["x"])
+            y = int(f["y"])
+            w = int(f["width"])
+            h = int(f["height"])
+            real_w = int(f["originalWidth"])
+            real_h = int(f["originalHeight"])
+            d = {
+                'box': (
+                    x,
+                    y,
+                    x + w,
+                    y + h
+                ),
+                'real_sizelist': [
+                    real_w,
+                    real_h
+                ],
+                'result_box': (
+                    int((real_w - w) / 2),
+                    int((real_h - h) / 2),
+                    int((real_w + w) / 2),
+                    int((real_h + h) / 2)
+                ),
+                'rotated': False
+            }
+            frames[k] = d
+        return frames.items()
     else:
-        print("Wrong data format on parsing: '" + ext + "'!")
+        print("Wrong data format on parsing: '" + format + "'!")
         exit(1)
 
 
-def gen_png_from_data(filename, ext):
+def gen_png_from_data(filename, format):
     big_image = Image.open(filename + ".png")
-    frames = frames_from_data(filename, ext)
+    frames = frames_from_data(filename, format)
     for k, v in frames:
         frame = v
         box = frame['box']
@@ -106,9 +141,10 @@ def gen_png_from_data(filename, ext):
         result_image.paste(rect_on_big, result_box, mask=0)
         if frame['rotated']:
             result_image = result_image.rotate(90)
-        if not os.path.isdir(filename):
-            os.mkdir(filename)
         outfile = (filename + '/' + k).replace('gift_', '')
+        dirname = os.path.dirname(outfile)
+        if not os.path.isdir(dirname):
+            os.mkdir(dirname)
         print(outfile, "generated")
         result_image.save(outfile)
 
@@ -118,20 +154,28 @@ if __name__ == '__main__':
         print("You must pass filename as the first parameter!")
         exit(1)
     filename = sys.argv[1]
+
+    format = 'plist'
     ext = '.plist'
     if len(sys.argv) < 3:
         print("No data format passed, assuming .plist")
-    elif sys.argv[2] == 'plist':
+    else:
+        format = sys.argv[2]
+
+    if format == 'plist':
         print(".plist data format passed")
-    elif sys.argv[2] == 'json':
+    elif format == 'json':
         ext = '.json'
         print(".json data format passed")
+    elif format == 'cocos':
+        print(".cocos data format passed")
     else:
-        print("Wrong data format passed '" + sys.argv[2] + "'!")
+        print("Wrong data format passed '" + format + "'!")
         exit(1)
+
     data_filename = filename + ext
     png_filename = filename + '.png'
     if os.path.exists(data_filename) and os.path.exists(png_filename):
-        gen_png_from_data(filename, ext)
+        gen_png_from_data(filename, format)
     else:
         print("Make sure you have both " + data_filename + " and " + png_filename + " files in the same directory")
