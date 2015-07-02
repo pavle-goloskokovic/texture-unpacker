@@ -54,37 +54,7 @@ Result will be the same.
 
 ### CocoStudio Plist example
 
-If you have **Sprite.plist** data file, it is defferent from the plist which packed by TexturePacker
-
-```xml
-<?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-	<dict>
-		<key>frames</key>
-		<dict>
-			<key>xxxx.png</key>
-			<dict>
-				<key>width</key>
-				<integer>32</integer>
-				<key>height</key>
-				<integer>30</integer>
-				<key>originalWidth</key>
-				<integer>32</integer>
-				<key>originalHeight</key>
-				<integer>30</integer>
-				<key>x</key>
-				<integer>0</integer>
-				<key>y</key>
-				<integer>0</integer>
-				<key>offsetX</key>
-				<real>0</real>
-				<key>offsetY</key>
-				<real>0</real>
-			</dict>
-```
-
-run the following command:
+If you have **Sprite.plist** data file, it is defferent from the plist which packed by Coco Studio and run the following command:
 
     python unpacker.py Sprite cocos
     
