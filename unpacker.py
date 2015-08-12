@@ -144,7 +144,7 @@ def gen_png_from_data(filename, format):
         outfile = (filename + '/' + k).replace('gift_', '')
         dirname = os.path.dirname(outfile)
         if not os.path.isdir(dirname):
-            os.mkdir(dirname)
+            os.makedirs(dirname)
         print(outfile, "generated")
         result_image.save(outfile)
 
