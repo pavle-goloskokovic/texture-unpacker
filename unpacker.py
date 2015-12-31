@@ -60,8 +60,8 @@ def frames_from_data(filename, ext):
         data = json.load(json_data)
         frames = {}
         for f in data['frames']:
-            x = int(f["frame"]["x"])
-            y = int(f["frame"]["y"])
+            x = int(f["frame"]["x"] if f['rotated'] else f["frame"]["y"])
+            y = int(f["frame"]["y"] if f['rotated'] else f["frame"]["x"])
             w = int(f["frame"]["h"] if f['rotated'] else f["frame"]["w"])
             h = int(f["frame"]["w"] if f['rotated'] else f["frame"]["h"])
             real_w = int(f["sourceSize"]["h"] if f['rotated'] else f["sourceSize"]["w"])
