@@ -104,13 +104,14 @@ def gen_png_from_data(filename, ext):
         result_image = Image.new('RGBA', real_sizelist, (0, 0, 0, 0))
         result_box = frame['result_box']
         result_image.paste(rect_on_big, result_box, mask=0)
+        final_image = result_image
         if frame['rotated']:
-            result_image = result_image.rotate(90)
+            final_image = result_image.transpose(Image.ROTATE_90)
         if not os.path.isdir(filename):
             os.mkdir(filename)
         outfile = (filename + '/' + k).replace('gift_', '')
         print(outfile, "generated")
-        result_image.save(outfile)
+        final_image.save(outfile)
 
 
 if __name__ == '__main__':
