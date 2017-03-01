@@ -1,4 +1,4 @@
-#! /usr/lical/bin/python
+#!/usr/bin/env python
 import os
 import sys
 from PIL import Image
@@ -16,6 +16,8 @@ def tree_to_dict(tree):
                 d[item.text] = True
             elif tree[index + 1].tag == 'false':
                 d[item.text] = False
+            elif tree[index + 1].tag == 'integer':
+                d[item.text] = int(tree[index + 1].text);
             elif tree[index + 1].tag == 'dict':
                 d[item.text] = tree_to_dict(tree[index + 1])
     return d
@@ -30,6 +32,12 @@ def frames_from_data(filename, ext):
         frames = plist_dict['frames'].items()
         for k, v in frames:
             frame = v
+            if(plist_dict["metadata"]["format"] == 3):
+                frame['frame'] = frame['textureRect']
+                frame['rotated'] = frame['textureRotated']
+                frame['sourceSize'] = frame['spriteSourceSize']
+                frame['offset'] = frame['spriteOffset']
+
             rectlist = to_list(frame['frame'])
             width = int(rectlist[3] if frame['rotated'] else rectlist[2])
             height = int(rectlist[2] if frame['rotated'] else rectlist[3])
@@ -47,12 +55,21 @@ def frames_from_data(filename, ext):
             offsetlist = to_list(frame['offset'])
             offset_x = int(offsetlist[1] if frame['rotated'] else offsetlist[0])
             offset_y = int(offsetlist[0] if frame['rotated'] else offsetlist[1])
-            frame['result_box'] = (
-                int((real_sizelist[0] - width) / 2 + offset_x),
-                int((real_sizelist[1] - height) / 2 + offset_y),
-                int((real_sizelist[0] + width) / 2 + offset_x),
-                int((real_sizelist[1] + height) / 2 + offset_y)
-            )
+
+            if frame['rotated']:
+                frame['result_box'] = (
+                    int((real_sizelist[0] - width) / 2 + offset_x),
+                    int((real_sizelist[1] - height) / 2 + offset_y),
+                    int((real_sizelist[0] + width) / 2 + offset_x),
+                    int((real_sizelist[1] + height) / 2 + offset_y)
+                )
+            else:
+                frame['result_box'] = (
+                    int((real_sizelist[0] - width) / 2 + offset_x),
+                    int((real_sizelist[1] - height) / 2 - offset_y),
+                    int((real_sizelist[0] + width) / 2 + offset_x),
+                    int((real_sizelist[1] + height) / 2 - offset_y)
+                )
         return frames
 
     elif ext == '.json':
@@ -104,14 +121,15 @@ def gen_png_from_data(filename, ext):
         result_image = Image.new('RGBA', real_sizelist, (0, 0, 0, 0))
         result_box = frame['result_box']
         result_image.paste(rect_on_big, result_box, mask=0)
-        final_image = result_image
         if frame['rotated']:
-            final_image = result_image.transpose(Image.ROTATE_90)
+            result_image = result_image.transpose(Image.ROTATE_90)
         if not os.path.isdir(filename):
             os.mkdir(filename)
         outfile = (filename + '/' + k).replace('gift_', '')
+        if not outfile.endswith('.png'):
+            outfile += '.png'
         print(outfile, "generated")
-        final_image.save(outfile)
+        result_image.save(outfile)
 
 
 if __name__ == '__main__':
