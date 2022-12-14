@@ -39,36 +39,36 @@ def frames_from_data(filename, ext):
                 frame['offset'] = frame['spriteOffset']
 
             rectlist = to_list(frame['frame'])
-            width = int(rectlist[3] if frame['rotated'] else rectlist[2])
-            height = int(rectlist[2] if frame['rotated'] else rectlist[3])
+            width = int(float(rectlist[3] if frame['rotated'] else rectlist[2]))
+            height = int(float(rectlist[2] if frame['rotated'] else rectlist[3]))
             frame['box'] = (
-                int(rectlist[0]),
-                int(rectlist[1]),
-                int(rectlist[0]) + width,
-                int(rectlist[1]) + height
+                int(float(rectlist[0])),
+                int(float(rectlist[1])),
+                int(float(rectlist[0])) + width,
+                int(float(rectlist[1])) + height
             )
             real_rectlist = to_list(frame['sourceSize'])
-            real_width = int(real_rectlist[1] if frame['rotated'] else real_rectlist[0])
-            real_height = int(real_rectlist[0] if frame['rotated'] else real_rectlist[1])
+            real_width = int(float(real_rectlist[1] if frame['rotated'] else real_rectlist[0]))
+            real_height = int(float(real_rectlist[0] if frame['rotated'] else real_rectlist[1]))
             real_sizelist = [real_width, real_height]
             frame['real_sizelist'] = real_sizelist
             offsetlist = to_list(frame['offset'])
-            offset_x = int(offsetlist[1] if frame['rotated'] else offsetlist[0])
-            offset_y = int(offsetlist[0] if frame['rotated'] else offsetlist[1])
+            offset_x = int(float(offsetlist[1] if frame['rotated'] else offsetlist[0]))
+            offset_y = int(float(offsetlist[0] if frame['rotated'] else offsetlist[1]))
 
             if frame['rotated']:
                 frame['result_box'] = (
-                    int((real_sizelist[0] - width) / 2 + offset_x),
-                    int((real_sizelist[1] - height) / 2 + offset_y),
-                    int((real_sizelist[0] + width) / 2 + offset_x),
-                    int((real_sizelist[1] + height) / 2 + offset_y)
+                    int(float((real_sizelist[0] - width) / 2 + offset_x)),
+                    int(float((real_sizelist[1] - height) / 2 + offset_y)),
+                    int(float((real_sizelist[0] + width) / 2 + offset_x)),
+                    int(float((real_sizelist[1] + height) / 2 + offset_y))
                 )
             else:
                 frame['result_box'] = (
-                    int((real_sizelist[0] - width) / 2 + offset_x),
-                    int((real_sizelist[1] - height) / 2 - offset_y),
-                    int((real_sizelist[0] + width) / 2 + offset_x),
-                    int((real_sizelist[1] + height) / 2 - offset_y)
+                    int(float((real_sizelist[0] - width) / 2 + offset_x)),
+                    int(float((real_sizelist[1] - height) / 2 - offset_y)),
+                    int(float((real_sizelist[0] + width) / 2 + offset_x)),
+                    int(float((real_sizelist[1] + height) / 2 - offset_y))
                 )
         return frames
 
@@ -77,12 +77,12 @@ def frames_from_data(filename, ext):
         data = json.load(json_data)
         frames = {}
         for f in data['frames']:
-            x = int(f["frame"]["x"] if f['rotated'] else f["frame"]["y"])
-            y = int(f["frame"]["y"] if f['rotated'] else f["frame"]["x"])
-            w = int(f["frame"]["h"] if f['rotated'] else f["frame"]["w"])
-            h = int(f["frame"]["w"] if f['rotated'] else f["frame"]["h"])
-            real_w = int(f["sourceSize"]["h"] if f['rotated'] else f["sourceSize"]["w"])
-            real_h = int(f["sourceSize"]["w"] if f['rotated'] else f["sourceSize"]["h"])
+            x = int(float(f["frame"]["x"]))
+            y = int(float(f["frame"]["y"]))
+            w = int(float(f["frame"]["h"] if f['rotated'] else f["frame"]["w"]))
+            h = int(float(f["frame"]["w"] if f['rotated'] else f["frame"]["h"]))
+            real_w = int(float(f["sourceSize"]["h"] if f['rotated'] else f["sourceSize"]["w"]))
+            real_h = int(float(f["sourceSize"]["w"] if f['rotated'] else f["sourceSize"]["h"]))
             d = {
                 'box': (
                     x,
@@ -132,11 +132,48 @@ def gen_png_from_data(filename, ext):
         result_image.save(outfile)
 
 
+def endWith(s,*endstring):
+    array = map(s.endswith,endstring)
+    if True in array:
+        return True
+    else:
+        return False
+
+
+# Get the all files & directories in the specified directory (path).
+def get_file_list(path):
+    current_files = os.listdir(path)
+    all_files = []
+    for file_name in current_files:
+        full_file_name = os.path.join(path, file_name)
+        if endWith(full_file_name,'.plist'):
+            full_file_name = full_file_name.replace('.plist','')
+            all_files.append(full_file_name)
+        if endWith(full_file_name,'.json'):
+            full_file_name = full_file_name.replace('.json','')
+            all_files.append(full_file_name)
+        if os.path.isdir(full_file_name):
+            next_level_files = get_recursive_file_list(full_file_name)
+            all_files.extend(next_level_files)
+    return all_files
+
+
+def get_sources_file(filename):
+    data_filename = filename + ext
+    png_filename = filename + '.png'
+    if os.path.exists(data_filename) and os.path.exists(png_filename):
+        gen_png_from_data(filename, ext)
+    else:
+        print("Make sure you have both " + data_filename + " and " + png_filename + " files in the same directory")
+
+
+# Use like this: python unpacker.py [Image Path or Image Name(but no suffix)] [Type:plist or json]
 if __name__ == '__main__':
     if len(sys.argv) <= 1:
         print("You must pass filename as the first parameter!")
         exit(1)
-    filename = sys.argv[1]
+    # filename = sys.argv[1]
+    path_or_name = sys.argv[1]
     ext = '.plist'
     if len(sys.argv) < 3:
         print("No data format passed, assuming .plist")
@@ -148,9 +185,10 @@ if __name__ == '__main__':
     else:
         print("Wrong data format passed '" + sys.argv[2] + "'!")
         exit(1)
-    data_filename = filename + ext
-    png_filename = filename + '.png'
-    if os.path.exists(data_filename) and os.path.exists(png_filename):
-        gen_png_from_data(filename, ext)
+    # supports multiple file conversions
+    if os.path.isdir(path_or_name):
+        files = get_file_list(path_or_name)
+        for file0 in files:
+            get_sources_file(file0)
     else:
-        print("Make sure you have both " + data_filename + " and " + png_filename + " files in the same directory")
+        get_sources_file(path_or_name)
