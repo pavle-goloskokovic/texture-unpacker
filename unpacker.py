@@ -17,7 +17,7 @@ def tree_to_dict(tree):
             elif tree[index + 1].tag == 'false':
                 d[item.text] = False
             elif tree[index + 1].tag == 'integer':
-                d[item.text] = int(tree[index + 1].text);
+                d[item.text] = int(tree[index + 1].text)
             elif tree[index + 1].tag == 'dict':
                 d[item.text] = tree_to_dict(tree[index + 1])
     return d
@@ -32,7 +32,7 @@ def frames_from_data(filename, ext):
         frames = plist_dict['frames'].items()
         for k, v in frames:
             frame = v
-            if(plist_dict["metadata"]["format"] == 3):
+            if plist_dict["metadata"]["format"] == 3:
                 frame['frame'] = frame['textureRect']
                 frame['rotated'] = frame['textureRotated']
                 frame['sourceSize'] = frame['spriteSourceSize']
@@ -132,8 +132,8 @@ def gen_png_from_data(filename, ext):
         result_image.save(outfile)
 
 
-def endWith(s,*endstring):
-    array = map(s.endswith,endstring)
+def end_with(s, *endstring):
+    array = map(s.endswith, endstring)
     if True in array:
         return True
     else:
@@ -146,11 +146,11 @@ def get_file_list(path):
     all_files = []
     for file_name in current_files:
         full_file_name = os.path.join(path, file_name)
-        if endWith(full_file_name,'.plist'):
-            full_file_name = full_file_name.replace('.plist','')
+        if end_with(full_file_name, '.plist'):
+            full_file_name = full_file_name.replace('.plist', '')
             all_files.append(full_file_name)
-        if endWith(full_file_name,'.json'):
-            full_file_name = full_file_name.replace('.json','')
+        if end_with(full_file_name, '.json'):
+            full_file_name = full_file_name.replace('.json', '')
             all_files.append(full_file_name)
         if os.path.isdir(full_file_name):
             next_level_files = get_recursive_file_list(full_file_name)
