@@ -1,6 +1,6 @@
 ![Node.js, split TexturePacker, and TypeScript logos](https://user-images.githubusercontent.com/7340300/207878018-21d96c16-980a-4d96-8c5b-b3c913024dfb.png)
 
-# TextureUnpacker Node.js TypeScript tool
+# 🗃️ TextureUnpacker Node.js TypeScript tool
 
 # Overview
 Use this script to unpack **.png** sprites from the sprite atlas (providing a **.plist** or **.json** data file and a **.png** file) packed by [TexturePacker](http://www.codeandweb.com/texturepacker/).
