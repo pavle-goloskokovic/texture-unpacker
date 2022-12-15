@@ -1,0 +1,42 @@
+{
+  "name": "texture-unpacker",
+  "version": "0.1.0",
+  "description": "TextureUnpacker Node.js TypeScript tool",
+  "main": "unpacker.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pavle-goloskokovic/texture-unpacker.git"
+  },
+  "keywords": [
+    "texture",
+    "packer",
+    "texturepacker",
+    "codeandweb",
+    "unpacker",
+    "textureunpacker",
+    "pack",
+    "unpack",
+    "atlas",
+    "textureatlas",
+    "png",
+    "json",
+    "plist",
+    "phaser",
+    "python",
+    "node",
+    "nodejs",
+    "js",
+    "javascript",
+    "ts",
+    "typescript"
+  ],
+  "author": "Pavle Goloskoković",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/pavle-goloskokovic/texture-unpacker/issues"
+  },
+  "homepage": "https://github.com/pavle-goloskokovic/texture-unpacker#readme"
+}

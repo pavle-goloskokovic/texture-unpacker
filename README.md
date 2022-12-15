@@ -1,5 +1,4 @@
-TextureUnpacker
-========================
+# TextureUnpacker Node.js TypeScript tool
 
 # Overview
 Use this script to unpack **.png** sprites from the sprite atlas (providing a **.plist** or **.json** data file and a **.png** file) packed by [TexturePacker](http://www.codeandweb.com/texturepacker/).
@@ -45,3 +44,5 @@ If you have **Sprite.json** data file instead of the **Sprite.plist** one run th
     python unpacker.py Sprite json
     
 Result will be the same.
+
+Ported from [onepill/texture_unpacker_scirpt](https://github.com/onepill/texture_unpacker_scirpt) archive written in python.
