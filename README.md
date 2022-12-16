@@ -6,18 +6,18 @@
 Use this script to unpack **.png** sprites from the sprite atlas (providing a **.plist** or **.json** data file and a **.png** file) packed by [TexturePacker](http://www.codeandweb.com/texturepacker/).
 
 # Dependencies
-  - [Python](http://www.python.org)
-  - [Pillow (PIL fork)](https://github.com/python-pillow/Pillow) 
+- [Python](http://www.python.org)
+- [Pillow (PIL fork)](https://github.com/python-pillow/Pillow)
 
 # Usage
-	
+
 	$ python unpacker.py <filename> [<format>]
-	
+
 ## filename
 
 - Filename of the sprite atlas image and data file without extensions.
 
-## format 
+## format
 
 *optional*
 
@@ -31,12 +31,12 @@ We have a pair of sprite atlas files named **Sprite.plist** and **Sprite.png** p
 Put them in the same folder as the **unpacker.py** script and run one of the following commands:
 
     python unpacker.py Sprite
-    
+
 or
 
     python unpacker.py Sprite plist
-    
-    
+
+
 Script will generate a folder named **Sprite** containing all the sprites from the sprite atlas.
 
 ### JSON example
@@ -44,7 +44,7 @@ Script will generate a folder named **Sprite** containing all the sprites from t
 If you have **Sprite.json** data file instead of the **Sprite.plist** one run the following command:
 
     python unpacker.py Sprite json
-    
+
 Result will be the same.
 
 Ported from [onepill/texture_unpacker_scirpt](https://github.com/onepill/texture_unpacker_scirpt) archive written in python.

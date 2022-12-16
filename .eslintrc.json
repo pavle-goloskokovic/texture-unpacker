@@ -1,0 +1,53 @@
+{
+    "extends": [
+        "eslint:recommended",
+        "plugin:@typescript-eslint/recommended"
+    ],
+    "env": {
+        "browser": true,
+        "node": true,
+        "es6": true
+    },
+    "parser": "@typescript-eslint/parser",
+    "parserOptions": {
+        "ecmaVersion": 2019,
+        "sourceType": "module"
+    },
+    "plugins": [
+        "@typescript-eslint/eslint-plugin",
+        "brace-rules"
+    ],
+    "globals": {
+        "Phaser": "readonly"
+    },
+    "rules": {
+        "space-before-function-paren": ["error", "always"],
+        "no-trailing-spaces": "error",
+        "semi": "off",
+        "quotes": ["error", "single"],
+        "key-spacing": "error",
+        "indent": ["error", 4, {
+            "VariableDeclarator": 1,
+            "SwitchCase": 1
+        }],
+        "lines-between-class-members": ["error",
+            "always", {"exceptAfterSingleLine": true}
+        ],
+        "@typescript-eslint/no-var-requires": "off",
+        "@typescript-eslint/no-explicit-any": "off",
+        "@typescript-eslint/no-namespace": "off",
+        "@typescript-eslint/consistent-type-assertions": "off",
+        "@typescript-eslint/member-delimiter-style": ["error", {
+            "multiline": {
+                "delimiter": "semi",
+                "requireLast": true
+            },
+            "singleline": {
+                "delimiter": "comma",
+                "requireLast": false
+            }
+        }],
+        "@typescript-eslint/semi": ["error"],
+        "brace-rules/brace-on-same-line": ["error", "allman", { "allowSingleLine": true }]
+    }
+}
