@@ -8,7 +8,9 @@ import json
 
 def tree_to_dict(tree):
     d = {}
-    for index, item in enumerate(tree):
+    for i in enumerate(tree):
+        index = i[0]
+        item = i[1]
         if item.tag == 'key':
             if tree[index + 1].tag == 'string':
                 d[item.text] = tree[index + 1].text
@@ -30,8 +32,8 @@ def frames_from_data(filename, ext):
         plist_dict = tree_to_dict(root[0])
         to_list = lambda x: x.replace('{', '').replace('}', '').split(',')
         frames = plist_dict['frames'].items()
-        for k, v in frames:
-            frame = v
+        for f in frames:
+            frame = f[1]
             if plist_dict["metadata"]["format"] == 3:
                 frame['frame'] = frame['textureRect']
                 frame['rotated'] = frame['textureRotated']
@@ -113,8 +115,9 @@ def frames_from_data(filename, ext):
 def gen_png_from_data(filename, ext):
     big_image = Image.open(filename + ".png")
     frames = frames_from_data(filename, ext)
-    for k, v in frames:
-        frame = v
+    for f in frames:
+        k = f[0]
+        frame = f[1]
         box = frame['box']
         rect_on_big = big_image.crop(box)
         real_sizelist = frame['real_sizelist']
