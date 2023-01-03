@@ -1,4 +1,4 @@
-import { join, extname } from 'path';
+import { join, extname, dirname } from 'path';
 import { readdirSync, lstatSync, existsSync, readFileSync, mkdirSync } from 'fs';
 import * as plist from 'plist';
 import sharp from 'sharp';
@@ -28,6 +28,13 @@ interface JsonData {
             h: number;
         };
         rotated: boolean;
+        trimmed: boolean;
+        spriteSourceSize: {
+            x: number;
+            y: number;
+            w: number;
+            h: number;
+        };
         sourceSize: {
             w: number;
             h: number;
@@ -43,9 +50,9 @@ interface JsonData {
 
 interface SpritesData {
     [key: string]: {
-        region: sharp.Region;
-        resizeOptions: sharp.ResizeOptions;
         rotated: boolean;
+        extractRegion: sharp.Region;
+        extendOptions: sharp.ExtendOptions;
     };
 }
 
@@ -84,24 +91,20 @@ const getSpritesData = (filename: string, ext: string): SpritesData =>
 
             const frame = toNumbersArray(f.frame);
             const rotated = f.rotated;
-            const sourceSize = toNumbersArray(f.sourceSize);
             const w = frame[2];
             const h = frame[3];
             const x = !rotated ? frame[0] : frame[1];
             const y = !rotated ? frame[1] : size[0] - h - frame[0];
 
             spritesData[spriteName] = {
-                region: {
+                rotated,
+                extractRegion: {
                     left: x,
                     top: y,
                     width: w,
                     height: h
                 },
-                resizeOptions: {
-                    width: sourceSize[0],
-                    height: sourceSize[1]
-                },
-                rotated
+                extendOptions: {} // empty as legacy plist has no trimmed data
             };
         }
 
@@ -116,24 +119,28 @@ const getSpritesData = (filename: string, ext: string): SpritesData =>
         {
             const frame = f.frame;
             const rotated = f.rotated;
-            const sourceSize = f.sourceSize;
+            const sss = f.spriteSourceSize;
+            const ss = f.sourceSize;
             const w = frame.w;
             const h = frame.h;
             const x = !rotated ? frame.x : frame.y;
             const y = !rotated ? frame.y : data.meta.size.w - h - frame.x;
 
             spritesData[f.filename] = {
-                region: {
+                rotated,
+                extractRegion: {
                     left: x,
                     top: y,
                     width: w,
                     height: h
                 },
-                resizeOptions: {
-                    width: sourceSize.w,
-                    height: sourceSize.h
-                },
-                rotated
+                extendOptions: {
+                    left: sss.x,
+                    top: sss.y,
+                    right: ss.w - sss.w - sss.x,
+                    bottom: ss.h - sss.h - sss.y,
+                    background: { r: 0, g: 0, b: 0, alpha: 0 }
+                }
             };
         });
 
@@ -155,16 +162,16 @@ const generateSprites = (filename: string, ext: string): void =>
 
     for (const spriteName in spritesData)
     {
-        if (!existsSync(filename))
-        {
-            mkdirSync(filename, { recursive: true });
-        }
-
         let outPath = join(filename, spriteName);
-
         if (!outPath.toLowerCase().endsWith('.png'))
         {
             outPath += '.png';
+        }
+
+        const dir = dirname(outPath);
+        if (!existsSync(dir))
+        {
+            mkdirSync(dir, { recursive: true });
         }
 
         const spriteData = spritesData[spriteName];
@@ -174,9 +181,9 @@ const generateSprites = (filename: string, ext: string): void =>
             // resizing and/or extracting regions:
             // https://sharp.pixelplumbing.com/api-operation#rotate
             .rotate(spriteData.rotated ? -90 : 0)
-            .extract(spriteData.region)
-            .resize(spriteData.resizeOptions)
-            .toFile(outPath).then((info) =>
+            .extract(spriteData.extractRegion)
+            .extend(spriteData.extendOptions)
+            .toFile(outPath).then(() =>
             {
                 console.info(`${outPath} generated.`);
             },
