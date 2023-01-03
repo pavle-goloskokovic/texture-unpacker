@@ -1,6 +1,7 @@
 import { join, extname } from 'path';
-import { readdirSync, lstatSync, existsSync, readFileSync /*, mkdirSync*/ } from 'fs';
+import { readdirSync, lstatSync, existsSync, readFileSync, mkdirSync } from 'fs';
 import * as plist from 'plist';
+import sharp from 'sharp';
 
 interface PlistData {
     frames: Record<string, {
@@ -10,11 +11,10 @@ interface PlistData {
         textureRotated?: boolean;
         sourceSize: string;
         spriteSourceSize?: string;
-        offset: string;
-        spriteOffset?: string;
     }>;
     metadata: {
         format: number;
+        size: string;
     };
 }
 
@@ -33,18 +33,24 @@ interface JsonData {
             h: number;
         };
     }[];
+    meta: {
+        size: {
+            w: number;
+            h: number;
+        };
+    };
 }
 
 interface SpritesData {
-    [key: string]: { // TODO adjust for sharp
-        box: number[];
-        real_sizelist: number[]; // TODO snake case to camel case
-        result_box: number[];
+    [key: string]: {
+        region: sharp.Region;
+        resizeOptions: sharp.ResizeOptions;
         rotated: boolean;
     };
 }
 
-const textureFormat = 'png'; // TODO use textureFormat instead of png
+const textureFormat = 'png';
+const textureFormatRegEx = new RegExp(`.${textureFormat}$`, 'i');
 const dataFormats = ['json', 'plist'];
 
 const toNumbersArray = (str: string): number[] =>
@@ -62,6 +68,7 @@ const getSpritesData = (filename: string, ext: string): SpritesData =>
     if (ext === '.plist')
     {
         const data = <any>plist.parse(rawData) as PlistData;
+        const size = toNumbersArray(data.metadata.size);
         const spritesData: SpritesData = {};
 
         for (const spriteName in data.frames)
@@ -73,31 +80,27 @@ const getSpritesData = (filename: string, ext: string): SpritesData =>
                 f.frame = f.textureRect;
                 f.rotated = f.textureRotated;
                 f.sourceSize = f.spriteSourceSize;
-                f.offset = f.spriteOffset;
             }
 
             const frame = toNumbersArray(f.frame);
             const rotated = f.rotated;
             const sourceSize = toNumbersArray(f.sourceSize);
-            const offset = toNumbersArray(f.offset);
-            const x = frame[0];
-            const y = frame[1];
-            const w = rotated ? frame[3] : frame[2];
-            const h = rotated ? frame[2] : frame[3];
-            const realW = rotated ? sourceSize[1] : sourceSize[0];
-            const realH = rotated ? sourceSize[0] : sourceSize[1];
-            const offsetX = rotated ? offset[1] : offset[0];
-            const offsetY = rotated ? offset[0] : -offset[1];
+            const w = frame[2];
+            const h = frame[3];
+            const x = !rotated ? frame[0] : frame[1];
+            const y = !rotated ? frame[1] : size[0] - h - frame[0];
 
             spritesData[spriteName] = {
-                box: [x, y, x + w, y + h],
-                real_sizelist: [realW, realH],
-                result_box: [
-                    (realW - w) / 2 + offsetX,
-                    (realH - h) / 2 + offsetY,
-                    (realW + w) / 2 + offsetX,
-                    (realH + h) / 2 + offsetY
-                ],
+                region: {
+                    left: x,
+                    top: y,
+                    width: w,
+                    height: h
+                },
+                resizeOptions: {
+                    width: sourceSize[0],
+                    height: sourceSize[1]
+                },
                 rotated
             };
         }
@@ -114,22 +117,22 @@ const getSpritesData = (filename: string, ext: string): SpritesData =>
             const frame = f.frame;
             const rotated = f.rotated;
             const sourceSize = f.sourceSize;
-            const x = frame.x;
-            const y = frame.y;
-            const w = rotated ? frame.h : frame.w;
-            const h = rotated ? frame.w : frame.h;
-            const realW = rotated ? sourceSize.h : sourceSize.w;
-            const realH = rotated ? sourceSize.w : sourceSize.h;
+            const w = frame.w;
+            const h = frame.h;
+            const x = !rotated ? frame.x : frame.y;
+            const y = !rotated ? frame.y : data.meta.size.w - h - frame.x;
 
             spritesData[f.filename] = {
-                box: [x, y, x + w, y + h],
-                real_sizelist: [realW, realH],
-                result_box: [
-                    (realW - w) / 2,
-                    (realH - h) / 2,
-                    (realW + w) / 2,
-                    (realH + h) / 2
-                ],
+                region: {
+                    left: x,
+                    top: y,
+                    width: w,
+                    height: h
+                },
+                resizeOptions: {
+                    width: sourceSize.w,
+                    height: sourceSize.h
+                },
                 rotated
             };
         });
@@ -145,44 +148,57 @@ const getSpritesData = (filename: string, ext: string): SpritesData =>
 
 const generateSprites = (filename: string, ext: string): void =>
 {
-    // const big_image = Image.open(filename + '.png'); // TODO use sharp
+    const texture = sharp(`${filename}.${textureFormat}`);
     const spritesData = getSpritesData(filename, ext);
 
-    console.log(filename, ext, spritesData);
+    const promises: Promise<void>[] = [];
 
-    /*for (const spriteName in spritesData)
+    for (const spriteName in spritesData)
     {
-        const sprite = spritesData[spriteName];
-        const rect_on_big = big_image.crop(sprite.box);
-        let result_image = Image.newX('RGBA', sprite.real_sizelist, [0, 0, 0, 0]); // TODO use sharp
-        result_image.paste(rect_on_big, sprite.result_box, {
-            mask: 0
-        });
-
-        if (sprite.rotated)
-        {
-            result_image = result_image.transpose(Image.ROTATE_90);
-        }
-
         if (!existsSync(filename))
         {
             mkdirSync(filename, { recursive: true });
         }
 
-        let outfile = join(filename, spriteName);
+        let outPath = join(filename, spriteName);
 
-        if (!outfile.toLowerCase().endsWith('.png'))
+        if (!outPath.toLowerCase().endsWith('.png'))
         {
-            outfile += '.png';
+            outPath += '.png';
         }
 
-        console.info(`${outfile} generated.`);
-        result_image.save(outfile);
-    }*/
+        const spriteData = spritesData[spriteName];
+
+        promises.push(texture.clone()
+            // Method order is important when rotating,
+            // resizing and/or extracting regions:
+            // https://sharp.pixelplumbing.com/api-operation#rotate
+            .rotate(spriteData.rotated ? -90 : 0)
+            .extract(spriteData.region)
+            .resize(spriteData.resizeOptions)
+            .toFile(outPath).then((info) =>
+            {
+                console.info(`${outPath} generated.`);
+            },
+            (reason) =>
+            {
+                console.error(outPath, reason);
+            })
+        );
+    }
+
+    Promise.all(promises).then(() =>
+    {
+        console.info('Unpacking complete.');
+    },
+    (reason) =>
+    {
+        console.error(reason);
+    });
 };
 
 // Get the all files in the specified directory (path).
-const getFiles = (path: string): string[] => // TODO snake case to camel case
+const getFiles = (path: string): string[] =>
 {
     const results: string[] = [];
     const files = readdirSync(path);
@@ -198,9 +214,7 @@ const getFiles = (path: string): string[] => // TODO snake case to camel case
         }
         else if (fullFilename.toLowerCase().endsWith(`.${textureFormat}`))
         {
-            results.push(fullFilename.replace(
-                new RegExp(`.${textureFormat}$`, 'i'), '')
-            );
+            results.push(fullFilename.replace(textureFormatRegEx, ''));
         }
     });
 
@@ -289,5 +303,5 @@ if (existsSync(pathOrName) && lstatSync(pathOrName).isDirectory())
 }
 else
 {
-    unpack(pathOrName, ext);
+    unpack(pathOrName.replace(textureFormatRegEx, ''), ext);
 }
