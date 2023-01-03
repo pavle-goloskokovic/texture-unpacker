@@ -38,7 +38,7 @@ interface JsonData {
 interface SpritesData {
     [key: string]: { // TODO adjust for sharp
         box: number[];
-        real_sizelist: number[];
+        real_sizelist: number[]; // TODO snake case to camel case
         result_box: number[];
         rotated: boolean;
     };
@@ -47,23 +47,22 @@ interface SpritesData {
 const textureFormat = 'png'; // TODO use textureFormat instead of png
 const dataFormats = ['json', 'plist'];
 
-const to_list = (x: string): number[] =>
+const toNumbersArray = (str: string): number[] =>
 {
-    return x.replace(/{/g, '')
+    return str.replace(/{/g, '')
         .replace(/}/g, '')
         .split(',')
         .map(value => Number(value));
 };
 
-// TODO const instead of function
-function sprites_from_data (filename: string, ext: string): SpritesData
+const getSpritesData = (filename: string, ext: string): SpritesData =>
 {
     const rawData = readFileSync(filename + ext, 'utf8');
 
     if (ext === '.plist')
     {
         const data = <any>plist.parse(rawData) as PlistData;
-        const sprites: SpritesData = {};
+        const spritesData: SpritesData = {};
 
         for (const spriteName in data.frames)
         {
@@ -77,38 +76,38 @@ function sprites_from_data (filename: string, ext: string): SpritesData
                 f.offset = f.spriteOffset;
             }
 
-            const frame = to_list(f.frame);
+            const frame = toNumbersArray(f.frame);
             const rotated = f.rotated;
-            const sourceSize = to_list(f.sourceSize);
-            const offset = to_list(f.offset);
+            const sourceSize = toNumbersArray(f.sourceSize);
+            const offset = toNumbersArray(f.offset);
             const x = frame[0];
             const y = frame[1];
             const w = rotated ? frame[3] : frame[2];
             const h = rotated ? frame[2] : frame[3];
-            const real_w = rotated ? sourceSize[1] : sourceSize[0];
-            const real_h = rotated ? sourceSize[0] : sourceSize[1];
-            const offset_x = rotated ? offset[1] : offset[0];
-            const offset_y = rotated ? offset[0] : -offset[1];
+            const realW = rotated ? sourceSize[1] : sourceSize[0];
+            const realH = rotated ? sourceSize[0] : sourceSize[1];
+            const offsetX = rotated ? offset[1] : offset[0];
+            const offsetY = rotated ? offset[0] : -offset[1];
 
-            sprites[spriteName] = {
+            spritesData[spriteName] = {
                 box: [x, y, x + w, y + h],
-                real_sizelist: [real_w, real_h],
+                real_sizelist: [realW, realH],
                 result_box: [
-                    (real_w - w) / 2 + offset_x,
-                    (real_h - h) / 2 + offset_y,
-                    (real_w + w) / 2 + offset_x,
-                    (real_h + h) / 2 + offset_y
+                    (realW - w) / 2 + offsetX,
+                    (realH - h) / 2 + offsetY,
+                    (realW + w) / 2 + offsetX,
+                    (realH + h) / 2 + offsetY
                 ],
                 rotated
             };
         }
 
-        return sprites;
+        return spritesData;
     }
     else if (ext === '.json')
     {
         const data = JSON.parse(rawData) as JsonData;
-        const sprites: SpritesData = {};
+        const spritesData: SpritesData = {};
 
         data.frames.forEach((f) =>
         {
@@ -119,41 +118,41 @@ function sprites_from_data (filename: string, ext: string): SpritesData
             const y = frame.y;
             const w = rotated ? frame.h : frame.w;
             const h = rotated ? frame.w : frame.h;
-            const real_w = rotated ? sourceSize.h : sourceSize.w;
-            const real_h = rotated ? sourceSize.w : sourceSize.h;
+            const realW = rotated ? sourceSize.h : sourceSize.w;
+            const realH = rotated ? sourceSize.w : sourceSize.h;
 
-            sprites[f.filename] = {
+            spritesData[f.filename] = {
                 box: [x, y, x + w, y + h],
-                real_sizelist: [real_w, real_h],
+                real_sizelist: [realW, realH],
                 result_box: [
-                    (real_w - w) / 2,
-                    (real_h - h) / 2,
-                    (real_w + w) / 2,
-                    (real_h + h) / 2
+                    (realW - w) / 2,
+                    (realH - h) / 2,
+                    (realW + w) / 2,
+                    (realH + h) / 2
                 ],
                 rotated
             };
         });
 
-        return sprites;
+        return spritesData;
     }
     else
     {
         console.error(`Wrong data format on parsing: '${ext}'!`);
         process.exit(1);
     }
-}
+};
 
-function gen_textures_from_data (filename: string, ext: string): void
+const generateSprites = (filename: string, ext: string): void =>
 {
     // const big_image = Image.open(filename + '.png'); // TODO use sharp
-    const sprites = sprites_from_data(filename, ext);
+    const spritesData = getSpritesData(filename, ext);
 
-    console.log(filename, ext, sprites);
+    console.log(filename, ext, spritesData);
 
-    /*for (const spriteName in sprites)
+    /*for (const spriteName in spritesData)
     {
-        const sprite = sprites[spriteName];
+        const sprite = spritesData[spriteName];
         const rect_on_big = big_image.crop(sprite.box);
         let result_image = Image.newX('RGBA', sprite.real_sizelist, [0, 0, 0, 0]); // TODO use sharp
         result_image.paste(rect_on_big, sprite.result_box, {
@@ -180,33 +179,33 @@ function gen_textures_from_data (filename: string, ext: string): void
         console.info(`${outfile} generated.`);
         result_image.save(outfile);
     }*/
-}
+};
 
-// Get the all files & directories in the specified directory (path).
-function get_file_list (path: string): string[] // TODO snake case to camel case
+// Get the all files in the specified directory (path).
+const getFiles = (path: string): string[] => // TODO snake case to camel case
 {
     const results: string[] = [];
-    const pathFiles = readdirSync(path);
+    const files = readdirSync(path);
 
-    pathFiles.forEach((file_name) =>
+    files.forEach((filename) =>
     {
-        const full_file_name = join(path, file_name);
+        const fullFilename = join(path, filename);
 
-        if (existsSync(full_file_name) &&
-            lstatSync(full_file_name).isDirectory())
+        if (existsSync(fullFilename) &&
+            lstatSync(fullFilename).isDirectory())
         {
-            results.push(...get_file_list(full_file_name));
+            results.push(...getFiles(fullFilename));
         }
-        else if (full_file_name.toLowerCase().endsWith(`.${textureFormat}`))
+        else if (fullFilename.toLowerCase().endsWith(`.${textureFormat}`))
         {
-            results.push(full_file_name.replace(
+            results.push(fullFilename.replace(
                 new RegExp(`.${textureFormat}$`, 'i'), '')
             );
         }
     });
 
     return results;
-}
+};
 
 const getDataPath = (filename: string, ext: string): string =>
 {
@@ -228,28 +227,28 @@ const getDataPath = (filename: string, ext: string): string =>
     return filename;
 };
 
-function get_sources_file (filename: string, ext: string): void
+const unpack = (filename: string, ext: string): void =>
 {
-    const data_filename = getDataPath(filename, ext);
-    const texture_filename = `${filename}.${textureFormat}`;
+    const dataPath = getDataPath(filename, ext);
+    const texturePath = `${filename}.${textureFormat}`;
 
-    if (existsSync(data_filename) && existsSync(texture_filename))
+    if (existsSync(dataPath) && existsSync(texturePath))
     {
-        gen_textures_from_data(filename, extname(data_filename));
+        generateSprites(filename, extname(dataPath));
     }
     else
     {
         console.warn('Make sure you have both data and texture files'
             + ` in the same directory for:\n'${filename}'`);
     }
-}
+};
 
 const getPathOrName = (argv: string[]): string =>
 {
     return join(__dirname, argv.length ? argv[0] : '');
 };
 
-const getExt = (argv: string[]): string =>
+const getExtFromDataFormat = (argv: string[]): string =>
 {
     if (argv.length < 2)
     {
@@ -277,18 +276,18 @@ const getExt = (argv: string[]): string =>
 // TODO update comment below
 // Use like this: python unpacker.py [Image Path or Image Name(but no suffix)] [Type:plist or json]
 const argv = process.argv.slice(2);
-const path_or_name = getPathOrName(argv);
-const ext = getExt(argv);
+const pathOrName = getPathOrName(argv);
+const ext = getExtFromDataFormat(argv);
 
 // supports multiple file conversions
-if (existsSync(path_or_name) && lstatSync(path_or_name).isDirectory())
+if (existsSync(pathOrName) && lstatSync(pathOrName).isDirectory())
 {
-    get_file_list(path_or_name).forEach((file) =>
+    getFiles(pathOrName).forEach((filename) =>
     {
-        get_sources_file(file, ext);
+        unpack(filename, ext);
     });
 }
 else
 {
-    get_sources_file(path_or_name, ext);
+    unpack(pathOrName, ext);
 }
