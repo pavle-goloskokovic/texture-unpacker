@@ -3,6 +3,10 @@ import { readdirSync, lstatSync, existsSync, readFileSync, mkdirSync } from 'fs'
 import * as plist from 'plist';
 import sharp from 'sharp';
 
+type ArrElement<ArrType> = ArrType extends readonly (infer ElementType)[]
+  ? ElementType
+  : never;
+
 interface PlistData {
     frames: Record<string, {
         frame: string;
@@ -48,6 +52,13 @@ interface JsonData {
     };
 }
 
+interface PhaserData {
+    textures: JsonData['meta'] & {
+        frames: JsonData['frames'];
+    }[];
+    meta: JsonData['meta'];
+}
+
 interface SpritesData {
     [key: string]: {
         rotated: boolean;
@@ -66,6 +77,31 @@ const toNumbersArray = (str: string): number[] =>
         .replace(/}/g, '')
         .split(',')
         .map(value => Number(value));
+};
+
+const parseJsonData = (data: any): JsonData =>
+{
+    if ((data as JsonData).frames)
+    {
+        return data as JsonData;
+    }
+    else if ((data as PhaserData).textures)
+    {
+        const phaserData = data as PhaserData;
+        const textureData = phaserData.textures[0];
+
+        const jsonData = {
+            frames: textureData.frames,
+            meta: Object.assign({}, phaserData.meta, textureData)
+        } as JsonData;
+        delete ((<any>jsonData.meta) as
+            ArrElement<PhaserData['textures']>).frames;
+
+        return jsonData;
+    }
+
+    console.warn('Possible unexpected json data format.');
+    return data;
 };
 
 const getSpritesData = (filename: string, ext: string): SpritesData =>
@@ -112,7 +148,7 @@ const getSpritesData = (filename: string, ext: string): SpritesData =>
     }
     else if (ext === '.json')
     {
-        const data = JSON.parse(rawData) as JsonData;
+        const data = parseJsonData(JSON.parse(rawData));
         const spritesData: SpritesData = {};
 
         data.frames.forEach((f) =>
