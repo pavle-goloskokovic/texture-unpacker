@@ -24,11 +24,11 @@
                 <key>aliases</key>
                 <array/>
                 <key>spriteOffset</key>
-                <string>{0,0}</string>
+                <string>{10,10}</string>
                 <key>spriteSize</key>
                 <string>{312,112}</string>
                 <key>spriteSourceSize</key>
-                <string>{312,112}</string>
+                <string>{372,152}</string>
                 <key>textureRect</key>
                 <string>{{341,1},{312,112}}</string>
                 <key>textureRotated</key>
@@ -54,11 +54,11 @@
                 <key>aliases</key>
                 <array/>
                 <key>spriteOffset</key>
-                <string>{0,0}</string>
+                <string>{-10,10}</string>
                 <key>spriteSize</key>
                 <string>{153,188}</string>
                 <key>spriteSourceSize</key>
-                <string>{153,188}</string>
+                <string>{193,248}</string>
                 <key>textureRect</key>
                 <string>{{341,315},{153,188}}</string>
                 <key>textureRotated</key>
@@ -78,7 +78,7 @@
             <key>size</key>
             <string>{495,504}</string>
             <key>smartupdate</key>
-            <string>$TexturePacker:SmartUpdate:48481572016b4a814095d67d9b4154b2:606593f67c3e770c549c31dc6b52d5c8:b21d0a374f29193c6840f9de877d05a4$</string>
+            <string>$TexturePacker:SmartUpdate:5e133f4154480ca604ef140ffea47067:62b8c97b417e4b1c3d00f00ad70b540d:b21d0a374f29193c6840f9de877d05a4$</string>
             <key>textureFileName</key>
             <string>Sprite.png</string>
         </dict>
