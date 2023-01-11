@@ -4,8 +4,7 @@
     "description": "TextureUnpacker Node.js TypeScript tool",
     "main": "unpacker.ts",
     "scripts": {
-        "unpack": "ts-node unpacker.ts",
-        "test": "ts-node test.ts"
+        "unpack": "ts-node unpacker.ts"
     },
     "repository": {
         "type": "git",
@@ -26,6 +25,13 @@
         "json",
         "plist",
         "phaser",
+        "phaser3",
+        "pixi",
+        "pixijs",
+        "pixi-js",
+        "cocos",
+        "cocos2d",
+        "cocos2d-x",
         "python",
         "node",
         "nodejs",

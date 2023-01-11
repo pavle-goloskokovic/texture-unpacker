@@ -12,7 +12,7 @@ type Filename = FramesArrayElement['filename'];
 type Meta = JSONArrayData['meta'];
 
 /**
- * Also Cocos2d-x data format.  TODO add Cocos2d to readme
+ * Also Cocos2d-x data format.
  */
 interface Cocos2dData {
     frames: Record<Filename, {
@@ -92,7 +92,7 @@ interface JSONArrayData {
 }
 
 /**
- * Also Phaser 2 (JSONHash) and PixiJS data formats. TODO add PixiJS to readme
+ * Also Phaser 2 (JSONHash) and PixiJS data formats.
  */
 interface JSONHashData {
     frames: Record<
@@ -466,8 +466,7 @@ const getExtFromDataFormat = (argv: string[]): string =>
     }
 };
 
-// TODO update comment below
-// Use like this: python unpacker.py [Image Path or Image Name(but no suffix)] [Type:plist or json]
+// Usage: npm run unpack [<path>] [<format>]
 const argv = process.argv.slice(2);
 const pathOrName = getPathOrName(argv);
 const ext = getExtFromDataFormat(argv);
