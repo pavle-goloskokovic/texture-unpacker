@@ -1,4 +1,4 @@
-import { join, extname, dirname } from 'path';
+import { join, extname, dirname, isAbsolute } from 'path';
 import { readdirSync, lstatSync, existsSync, readFileSync, mkdirSync } from 'fs';
 import * as plist from 'plist';
 import sharp from 'sharp';
@@ -438,7 +438,16 @@ const unpack = (filePath: string, ext: string): void =>
 
 const getPathOrName = (argv: string[]): string =>
 {
-    return join(__dirname, argv.length ? argv[0] : '');
+    const pathOrName = argv.length ? argv[0] : '';
+
+    if (isAbsolute(pathOrName))
+    {
+        return pathOrName;
+    }
+    else
+    {
+        return join(__dirname, pathOrName);
+    }
 };
 
 const getExtFromDataFormat = (argv: string[]): string =>
