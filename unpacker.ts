@@ -290,6 +290,7 @@ const getSpritesData = (filePath: string, ext: string): SpritesData =>
         {
             const frame = f.frame;
             const rotated = f.rotated;
+            const trimmed = f.trimmed;
             const sss = f.spriteSourceSize;
             const ss = f.sourceSize;
             const w = frame.w;
@@ -308,8 +309,8 @@ const getSpritesData = (filePath: string, ext: string): SpritesData =>
                 extendOptions: {
                     left: sss.x,
                     top: sss.y,
-                    right: ss.w - sss.w - sss.x,
-                    bottom: ss.h - sss.h - sss.y,
+                    right: trimmed ? ss.w - sss.w - sss.x : 0,
+                    bottom: trimmed ? ss.h - sss.h - sss.y : 0,
                     background: { r: 0, g: 0, b: 0, alpha: 0 }
                 }
             };
