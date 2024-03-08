@@ -33,6 +33,10 @@
         "lines-between-class-members": ["error",
             "always", {"exceptAfterSingleLine": true}
         ],
+        "keyword-spacing": ["error", { "overrides": {
+            "this": { "before": false }
+        } }],
+        "object-curly-spacing": ["error", "always"],
         "@typescript-eslint/no-var-requires": "off",
         "@typescript-eslint/no-explicit-any": "off",
         "@typescript-eslint/no-namespace": "off",
@@ -47,7 +51,9 @@
                 "requireLast": false
             }
         }],
-        "@typescript-eslint/semi": ["error"],
+        "@typescript-eslint/semi": "error",
+        "@typescript-eslint/consistent-type-imports": "error",
+        "@typescript-eslint/no-import-type-side-effects": "error",
         "brace-rules/brace-on-same-line": ["error", "allman", { "allowSingleLine": true }]
     }
 }
