@@ -115,9 +115,9 @@ type SpritesData = Record<Filename, {
     extendOptions: sharp.ExtendOptions;
 }>;
 
-const textureFormat = 'png';
-const textureFormatRegEx = new RegExp(`.${textureFormat}$`, 'i');
-const dataFormats = ['json', 'plist'];
+const textureExt = '.png';
+const textureExtRegExp = new RegExp(`${textureExt}$`, 'i');
+const dataFormats = ['json', 'plist'] as const;
 
 const toNumbersArray = (str: string): number[] =>
 {
@@ -240,11 +240,11 @@ const parseJsonData = (rawData: string): JSONArrayData =>
     return data;
 };
 
-const getSpritesData = (filePath: string, ext: string): SpritesData =>
+const getSpritesData = (filePath: string, dataExt: string): SpritesData =>
 {
-    const rawData = readFileSync(filePath + ext, 'utf8');
+    const rawData = readFileSync(filePath + dataExt, 'utf8');
 
-    if (ext === '.plist')
+    if (dataExt === '.plist')
     {
         const data = parsePlistData(rawData);
         const spritesData: SpritesData = {};
@@ -281,7 +281,7 @@ const getSpritesData = (filePath: string, ext: string): SpritesData =>
 
         return spritesData;
     }
-    else if (ext === '.json')
+    else if (dataExt === '.json')
     {
         const data = parseJsonData(rawData);
         const spritesData: SpritesData = {};
@@ -320,25 +320,23 @@ const getSpritesData = (filePath: string, ext: string): SpritesData =>
     }
     else
     {
-        console.error(`Wrong data format on parsing: '${ext}'!`);
+        console.error(`Wrong data format on parsing: '${dataExt}'!`);
         process.exit(1);
     }
 };
 
-const generateSprites = (filePath: string, ext: string): void =>
+const generateSprites = (filePath: string, dataExt: string): void =>
 {
-    const texture = sharp(`${filePath}.${textureFormat}`);
-    const spritesData = getSpritesData(filePath, ext);
+    const texturePath = filePath + textureExt;
+    const texture = sharp(texturePath);
+    const spritesData = getSpritesData(filePath, dataExt);
 
     const promises: Promise<void>[] = [];
 
     for (const spriteName in spritesData)
     {
-        let outPath = join(filePath, spriteName);
-        if (!outPath.toLowerCase().endsWith('.png'))
-        {
-            outPath += '.png';
-        }
+        const outPath = join(filePath, spriteName) +
+            (spriteName.toLowerCase().endsWith('.png') ? '' : '.png');
 
         const dir = dirname(outPath);
         if (!existsSync(dir))
@@ -368,7 +366,7 @@ const generateSprites = (filePath: string, ext: string): void =>
 
     Promise.all(promises).then(() =>
     {
-        console.info(`Unpacking '${filePath}' complete.`);
+        console.info(`Unpacking '${texturePath}' complete.`);
     },
     (reason) =>
     {
@@ -390,20 +388,20 @@ const getFiles = (path: string): string[] =>
         {
             results.push(...getFiles(fullPath));
         }
-        else if (fullPath.toLowerCase().endsWith(`.${textureFormat}`))
+        else if (fullPath.toLowerCase().endsWith(textureExt))
         {
-            results.push(fullPath.replace(textureFormatRegEx, ''));
+            results.push(fullPath.replace(textureExtRegExp, ''));
         }
     });
 
     return results;
 };
 
-const getDataPath = (filePath: string, ext: string): string =>
+const getDataPath = (filePath: string, dataExt: string): string =>
 {
-    if (ext)
+    if (dataExt)
     {
-        return filePath + ext;
+        return filePath + dataExt;
     }
 
     for (let i = 0; i < dataFormats.length; i++)
@@ -413,7 +411,7 @@ const getDataPath = (filePath: string, ext: string): string =>
 
         if (existsSync(dataPath))
         {
-            console.info(`'${dataFormat}' data format found for '${filePath}'.`);
+            console.info(`'${dataFormat}' data format found for '${filePath + textureExt}'.`);
             return dataPath;
         }
     }
@@ -421,10 +419,10 @@ const getDataPath = (filePath: string, ext: string): string =>
     return filePath;
 };
 
-const unpack = (filePath: string, ext: string): void =>
+const unpack = (filePath: string, dataExt: string): void =>
 {
-    const dataPath = getDataPath(filePath, ext);
-    const texturePath = `${filePath}.${textureFormat}`;
+    const dataPath = getDataPath(filePath, dataExt);
+    const texturePath = filePath + textureExt;
 
     if (existsSync(dataPath) && existsSync(texturePath))
     {
@@ -460,17 +458,17 @@ const getExtFromDataFormat = (argv: string[]): string =>
     }
     else
     {
-        const ext = argv[1];
+        const dataFormat = argv[1];
 
-        switch (ext)
+        switch (dataFormat)
         {
             case 'json':
             case 'plist':
-                console.info(`'${ext}' data format passed.`);
-                return `.${ext}`;
+                console.info(`'${dataFormat}' data format passed.`);
+                return `.${dataFormat}`;
 
             default:
-                console.error(`Unexpected data format passed: '${ext}'!`);
+                console.error(`Unexpected data format passed: '${dataFormat}'!`);
                 process.exit(1);
         }
     }
@@ -479,17 +477,17 @@ const getExtFromDataFormat = (argv: string[]): string =>
 // Usage: npm run unpack [<path>] [<format>]
 const argv = process.argv.slice(2);
 const pathOrName = getPathOrName(argv);
-const ext = getExtFromDataFormat(argv);
+const dataExt = getExtFromDataFormat(argv);
 
 // supports multiple file conversions
 if (existsSync(pathOrName) && lstatSync(pathOrName).isDirectory())
 {
     getFiles(pathOrName).forEach((filePath) =>
     {
-        unpack(filePath, ext);
+        unpack(filePath, dataExt);
     });
 }
 else
 {
-    unpack(pathOrName.replace(textureFormatRegEx, ''), ext);
+    unpack(pathOrName.replace(textureExtRegExp, ''), dataExt);
 }
