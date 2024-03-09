@@ -1,4 +1,4 @@
-import { join, extname, dirname, isAbsolute } from 'path';
+import { join, extname, isAbsolute } from 'path';
 import { readdirSync, lstatSync, existsSync, readFileSync, mkdirSync } from 'fs';
 import * as plist from 'plist';
 import sharp from 'sharp';
@@ -341,17 +341,16 @@ const generateSprites = (filePath: string, dataExt: string): void =>
     const texture = sharp(texturePath);
     const spritesData = getSpritesData(filePath, dataExt);
 
+    if (!existsSync(filePath))
+    {
+        mkdirSync(filePath, { recursive: true });
+    }
+
     const promises: Promise<void>[] = [];
 
     for (const spriteName in spritesData)
     {
         const outPath = appendTextureExt(join(filePath, spriteName));
-
-        const dir = dirname(outPath);
-        if (!existsSync(dir))
-        {
-            mkdirSync(dir, { recursive: true });
-        }
 
         const spriteData = spritesData[spriteName];
 
