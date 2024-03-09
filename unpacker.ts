@@ -119,6 +119,16 @@ const textureExt = '.png';
 const textureExtRegExp = new RegExp(`${textureExt}$`, 'i');
 const dataFormats = ['json', 'plist'] as const;
 
+const appendTextureExt = (path: string): string =>
+{
+    return path + (path.toLowerCase().endsWith(textureExt) ? '' : textureExt);
+};
+
+const trimTextureExt = (path: string): string =>
+{
+    return path.replace(textureExtRegExp, '');
+};
+
 const toNumbersArray = (str: string): number[] =>
 {
     return str.replace(/{/g, '')
@@ -320,7 +330,7 @@ const getSpritesData = (filePath: string, dataExt: string): SpritesData =>
     }
     else
     {
-        console.error(`Wrong data format on parsing: '${dataExt}'!`);
+        console.error(`Wrong data format on parsing: '${dataExt}'.`);
         process.exit(1);
     }
 };
@@ -335,8 +345,7 @@ const generateSprites = (filePath: string, dataExt: string): void =>
 
     for (const spriteName in spritesData)
     {
-        const outPath = join(filePath, spriteName) +
-            (spriteName.toLowerCase().endsWith('.png') ? '' : '.png');
+        const outPath = appendTextureExt(join(filePath, spriteName));
 
         const dir = dirname(outPath);
         if (!existsSync(dir))
@@ -390,7 +399,7 @@ const getFiles = (path: string): string[] =>
         }
         else if (fullPath.toLowerCase().endsWith(textureExt))
         {
-            results.push(fullPath.replace(textureExtRegExp, ''));
+            results.push(trimTextureExt(fullPath));
         }
     });
 
@@ -468,7 +477,7 @@ const getExtFromDataFormat = (argv: string[]): string =>
                 return `.${dataFormat}`;
 
             default:
-                console.error(`Unexpected data format passed: '${dataFormat}'!`);
+                console.error(`Unexpected data format passed: '${dataFormat}'.`);
                 process.exit(1);
         }
     }
@@ -479,8 +488,14 @@ const argv = process.argv.slice(2);
 const pathOrName = getPathOrName(argv);
 const dataExt = getExtFromDataFormat(argv);
 
+const texturePath = appendTextureExt(pathOrName);
+
+if (existsSync(texturePath))
+{
+    unpack(trimTextureExt(texturePath), dataExt);
+}
 // supports multiple file conversions
-if (existsSync(pathOrName) && lstatSync(pathOrName).isDirectory())
+else if (existsSync(pathOrName) && lstatSync(pathOrName).isDirectory())
 {
     getFiles(pathOrName).forEach((filePath) =>
     {
@@ -489,5 +504,5 @@ if (existsSync(pathOrName) && lstatSync(pathOrName).isDirectory())
 }
 else
 {
-    unpack(pathOrName.replace(textureExtRegExp, ''), dataExt);
+    console.error(`'${pathOrName}' not found.`);
 }

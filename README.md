@@ -69,7 +69,7 @@ $ npm run unpack example/Sprite.png
 
 In case you have only `plist` data file available, the above command would work the same since the tool can automatically detect available data file.
 
-You can also omit the sprite sheet extension `.png` when running the tool, but if you plan to run it repeatedly this might have undesired behavior since providing `example/Sprite` as the first argument will give priority to the generated `example/Sprite` directory, rather than to `example/Sprite.png` sprite sheet file:
+You can also omit the sprite sheet extension `.png` when running the tool for the same effect:
 
 ```bash
 $ npm run unpack example/Sprite
@@ -80,6 +80,8 @@ Providing directory path as the first argument will scan provided directory for 
 ```bash
 $ npm run unpack example
 ```
+
+Note that providing `example/Sprite` as the first argument will give priority to `example/Sprite.png` sprite sheet file, rather than to the generated `example/Sprite` directory, to avoid undesired behavior if you run the tool repeatedly.
 
 And finally, omitting the path argument completely will scan the entire project structure to find all available `.png` sprite sheets with accompanying data files to unpack:
 
