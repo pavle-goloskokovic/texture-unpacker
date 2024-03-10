@@ -1,5 +1,5 @@
-import { join, extname, isAbsolute } from 'path';
-import { readdirSync, lstatSync, existsSync, readFileSync, mkdirSync } from 'fs';
+import { extname, isAbsolute, join } from 'path';
+import { existsSync, lstatSync, mkdirSync, readdirSync, readFileSync, rmSync } from 'fs';
 import * as plist from 'plist';
 import sharp from 'sharp';
 import yargs from 'yargs';
@@ -347,6 +347,11 @@ const generateSprites = (filePath: string, dataExt: string): void =>
         getAbsolutePath(argv.outputPath) :
         filePath;
 
+    if (argv.clean && existsSync(outPath))
+    {
+        rmSync(outPath, { recursive: true, force: true });
+    }
+
     if (!existsSync(outPath))
     {
         mkdirSync(outPath, { recursive: true });
@@ -505,6 +510,13 @@ const argv = yargs(hideBin(process.argv))
             default: '',
             describe: 'Output directory path',
             type: 'string'
+        },
+        clean: {
+            alias: 'c',
+            demandOption: false,
+            default: false,
+            describe: 'Clean the output directory before unpacking',
+            type: 'boolean'
         }
     })
     .help()

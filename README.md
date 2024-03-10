@@ -48,6 +48,8 @@ $ npm run unpack -- -h
 #   -f, --dataFormat  Data format type ('json' or 'plist')
 #                                                [string] [required] [default: ""]
 #   -o, --outputPath  Output directory path                 [string] [default: ""]
+#   -c, --clean       Clean the output directory before unpacking
+#                                                       [boolean] [default: false]
 #   -v, --version     Show version number                                [boolean]
 #   -h, --help        Show help                                          [boolean]
 ```
@@ -100,6 +102,11 @@ If you want to override the default output path, you can pass a custom one as an
 
 ```bash
 $ npm run unpack -- -i example/Sprite -o example/Sprite_unpacked
+```
+If you want to clean the output directory before unpacking you can indicate that by passing another argument:
+
+```bash
+$ npm run unpack -- -i example/Sprite -c
 ```
 ___
 ###### Originally ported from [onepill/texture_unpacker_scirpt](https://github.com/onepill/texture_unpacker_scirpt) archive written in python.
