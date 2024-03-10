@@ -47,6 +47,7 @@ $ npm run unpack -- -h
 #                                                [string] [required] [default: ""]
 #   -f, --dataFormat  Data format type ('json' or 'plist')
 #                                                [string] [required] [default: ""]
+#   -o, --outputPath  Output directory path                 [string] [default: ""]
 #   -v, --version     Show version number                                [boolean]
 #   -h, --help        Show help                                          [boolean]
 ```
@@ -93,6 +94,12 @@ And finally, omitting the path argument completely will scan the entire project 
 
 ```bash
 $ npm run unpack
+```
+
+If you want to override the default output path, you can pass a custom one as an argument:
+
+```bash
+$ npm run unpack -- -i example/Sprite -o example/Sprite_unpacked
 ```
 ___
 ###### Originally ported from [onepill/texture_unpacker_scirpt](https://github.com/onepill/texture_unpacker_scirpt) archive written in python.

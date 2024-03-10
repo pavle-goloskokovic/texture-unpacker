@@ -343,16 +343,20 @@ const generateSprites = (filePath: string, dataExt: string): void =>
     const texture = sharp(texturePath);
     const spritesData = getSpritesData(filePath, dataExt);
 
-    if (!existsSync(filePath))
+    const outPath = argv.outputPath ?
+        getAbsolutePath(argv.outputPath) :
+        filePath;
+
+    if (!existsSync(outPath))
     {
-        mkdirSync(filePath, { recursive: true });
+        mkdirSync(outPath, { recursive: true });
     }
 
     const promises: Promise<void>[] = [];
 
     for (const spriteName in spritesData)
     {
-        const outPath = appendTextureExt(join(filePath, spriteName));
+        const fileOut = appendTextureExt(join(outPath, spriteName));
 
         const spriteData = spritesData[spriteName];
 
@@ -363,9 +367,9 @@ const generateSprites = (filePath: string, dataExt: string): void =>
             .rotate(spriteData.rotated ? -90 : 0)
             .extract(spriteData.extractRegion)
             .extend(spriteData.extendOptions)
-            .toFile(outPath).then(() =>
+            .toFile(fileOut).then(() =>
             {
-                console.info(`${outPath} generated.`);
+                console.info(`${fileOut} generated.`);
             },
             (reason) =>
             {
@@ -493,6 +497,13 @@ const argv = yargs(hideBin(process.argv))
             demandOption: true,
             default: '',
             describe: 'Data format type (\'json\' or \'plist\')',
+            type: 'string'
+        },
+        outputPath: {
+            alias: 'o',
+            demandOption: false,
+            default: '',
+            describe: 'Output directory path',
             type: 'string'
         }
     })
