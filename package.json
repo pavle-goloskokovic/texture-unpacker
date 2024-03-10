@@ -49,14 +49,16 @@
     "devDependencies": {
         "@types/plist": "^3.0.5",
         "@types/sharp": "^0.32.0",
+        "@types/yargs": "^17.0.32",
         "@typescript-eslint/eslint-plugin": "^7.1.1",
         "eslint": "^8.57.0",
         "eslint-plugin-brace-rules": "^0.1.6",
-        "ts-node": "^10.9.2",
         "typescript": "^5.4.2"
     },
     "dependencies": {
         "plist": "^3.1.0",
-        "sharp": "^0.33.2"
+        "sharp": "^0.33.2",
+        "ts-node": "^10.9.2",
+        "yargs": "^17.7.2"
     }
 }

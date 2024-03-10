@@ -2,6 +2,8 @@ import { join, extname, isAbsolute } from 'path';
 import { readdirSync, lstatSync, existsSync, readFileSync, mkdirSync } from 'fs';
 import * as plist from 'plist';
 import sharp from 'sharp';
+import yargs from 'yargs';
+import { hideBin } from 'yargs/helpers';
 
 type ArrayElement<ArrayType extends readonly unknown[]> =
     ArrayType extends readonly (infer ElementType)[] ? ElementType : never;
@@ -443,65 +445,79 @@ const unpack = (filePath: string, dataExt: string): void =>
     }
 };
 
-const getPathOrName = (argv: string[]): string =>
+const getAbsolutePath = (path: string): string =>
 {
-    const pathOrName = argv.length ? argv[0] : '';
-
-    if (isAbsolute(pathOrName))
+    if (isAbsolute(path))
     {
-        return pathOrName;
+        return path;
     }
     else
     {
-        return join(__dirname, pathOrName);
+        return join(__dirname, path);
     }
 };
 
-const getExtFromDataFormat = (argv: string[]): string =>
+const getExtFromDataFormat = (dataFormat: string): string =>
 {
-    if (argv.length < 2)
+    switch (dataFormat)
     {
-        console.info('No data format passed, will check for all supported...');
-        return '';
+        case '':
+            console.info('No data format passed, will check for all supported...');
+            return '';
+
+        case 'json':
+        case 'plist':
+            console.info(`'${dataFormat}' data format passed.`);
+            return `.${dataFormat}`;
+
+        default:
+            console.error(`Unexpected data format passed: '${dataFormat}'.`);
+            process.exit(1);
     }
-    else
-    {
-        const dataFormat = argv[1];
+};
 
-        switch (dataFormat)
-        {
-            case 'json':
-            case 'plist':
-                console.info(`'${dataFormat}' data format passed.`);
-                return `.${dataFormat}`;
-
-            default:
-                console.error(`Unexpected data format passed: '${dataFormat}'.`);
-                process.exit(1);
+const argv = yargs(hideBin(process.argv))
+    .version()
+    .alias('v', 'version')
+    .usage('Usage: npm run unpack [-- <options>]')
+    .options({
+        inputPath: {
+            alias: 'i',
+            demandOption: true,
+            default: '',
+            describe: 'Directory or sprite sheet path/name',
+            type: 'string'
+        },
+        dataFormat: {
+            alias: 'f',
+            demandOption: true,
+            default: '',
+            describe: 'Data format type (\'json\' or \'plist\')',
+            type: 'string'
         }
-    }
-};
+    })
+    .help()
+    .alias('h', 'help')
+    .parseSync();
 
-// Usage: npm run unpack [<path>] [<format>]
-const argv = process.argv.slice(2);
-const pathOrName = getPathOrName(argv);
-const dataExt = getExtFromDataFormat(argv);
+const inputPath = getAbsolutePath(argv.inputPath);
+const dataExt = getExtFromDataFormat(argv.dataFormat);
 
-const texturePath = appendTextureExt(pathOrName);
+const texturePath = appendTextureExt(inputPath);
 
 if (existsSync(texturePath))
 {
     unpack(trimTextureExt(texturePath), dataExt);
 }
 // supports multiple file conversions
-else if (existsSync(pathOrName) && lstatSync(pathOrName).isDirectory())
+else if (existsSync(inputPath) && lstatSync(inputPath).isDirectory())
 {
-    getFiles(pathOrName).forEach((filePath) =>
+    getFiles(inputPath).forEach((filePath) =>
     {
         unpack(filePath, dataExt);
     });
 }
 else
 {
-    console.error(`'${pathOrName}' not found.`);
+    console.error(`'${inputPath}' not found.`);
 }

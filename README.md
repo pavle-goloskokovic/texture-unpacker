@@ -38,11 +38,17 @@ $ cd texture-unpacker
 # Install dependencies
 $ npm install
 
-# Run TextureUnpacker tool
-$ npm run unpack [<path>] [<format>]
+# Run TextureUnpacker tool usage command
+$ npm run unpack -- -h
+# Usage: npm run unpack [-- <options>]
+#
 # Options:
-#  path    Directory or sprite sheet path/name       [string] [default: '']
-#  format  Data format type ('json' or 'plist')  [string] [default: 'json']
+#   -i, --inputPath   Directory or sprite sheet path/name
+#                                                [string] [required] [default: ""]
+#   -f, --dataFormat  Data format type ('json' or 'plist')
+#                                                [string] [required] [default: ""]
+#   -v, --version     Show version number                                [boolean]
+#   -h, --help        Show help                                          [boolean]
 ```
 
 ## Example
@@ -52,19 +58,19 @@ We have sprite sheet and data files `Sprite.png`, `Sprite.json`, and `Sprite.pli
 Running the command below will read `json` data file, create `Sprite` directory at the same level as the sprite sheet file, and populate it with individual sprites:
 
 ```bash
-$ npm run unpack example/Sprite.png json
+$ npm run unpack -- -i example/Sprite.png -f json
 ```
 
 In case we have multiple data formats available, like in this example, you can explicitly provide `plist` as the second argument to give it precedence:
 
 ```bash
-$ npm run unpack example/Sprite.png plist
+$ npm run unpack -- -i example/Sprite.png -f plist
 ```
 
 Omitting the format argument in the command above will use `json` data since it is the default expected format:
 
 ```bash
-$ npm run unpack example/Sprite.png
+$ npm run unpack -- -i example/Sprite.png
 ```
 
 In case you have only `plist` data file available, the above command would work the same since the tool can automatically detect available data file.
@@ -72,13 +78,13 @@ In case you have only `plist` data file available, the above command would work 
 You can also omit the sprite sheet extension `.png` when running the tool for the same effect:
 
 ```bash
-$ npm run unpack example/Sprite
+$ npm run unpack -- -i example/Sprite
 ```
 
 Providing directory path as the first argument will scan provided directory for `.png` sprite sheets with accompanying data files to unpack:
 
 ```bash
-$ npm run unpack example
+$ npm run unpack -- -i example
 ```
 
 Note that providing `example/Sprite` as the first argument will give priority to `example/Sprite.png` sprite sheet file, rather than to the generated `example/Sprite` directory, to avoid undesired behavior if you run the tool repeatedly.
