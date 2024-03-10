@@ -43,11 +43,10 @@ $ npm run unpack -- -h
 # Usage: npm run unpack [-- <options>]
 #
 # Options:
-#   -i, --inputPath   Directory or sprite sheet path/name
-#                                                [string] [required] [default: ""]
-#   -f, --dataFormat  Data format type ('json' or 'plist')
-#                                                [string] [required] [default: ""]
-#   -o, --outputPath  Output directory path                 [string] [default: ""]
+#   -i, --inputPath   Directory or sprite sheet path/name   [string] [default: ""]
+#   -f, --dataFormat  Data format type ('json' or 'plist')  [string] [default: ""]
+#   -d, --dataPath    Custom data file path                 [string] [default: ""]
+#   -o, --outputPath  Custom output directory path          [string] [default: ""]
 #   -c, --clean       Clean the output directory before unpacking
 #                                                       [boolean] [default: false]
 #   -v, --version     Show version number                                [boolean]
@@ -89,7 +88,6 @@ Providing directory path as the first argument will scan provided directory for 
 ```bash
 $ npm run unpack -- -i example
 ```
-
 Note that providing `example/Sprite` as the first argument will give priority to `example/Sprite.png` sprite sheet file, rather than to the generated `example/Sprite` directory, to avoid undesired behavior if you run the tool repeatedly.
 
 And finally, omitting the path argument completely will scan the entire project structure to find all available `.png` sprite sheets with accompanying data files to unpack:
@@ -98,11 +96,19 @@ And finally, omitting the path argument completely will scan the entire project 
 $ npm run unpack
 ```
 
+If you want to override the default data path, you can pass a custom one as an argument:
+
+```bash
+$ npm run unpack -- -i example/Sprite -d example/Sprite_custom.json
+```
+Note that custom data file path must include file extension, and if data format is also passed it will be ignored.
+
 If you want to override the default output path, you can pass a custom one as an argument:
 
 ```bash
 $ npm run unpack -- -i example/Sprite -o example/Sprite_unpacked
 ```
+
 If you want to clean the output directory before unpacking you can indicate that by passing another argument:
 
 ```bash

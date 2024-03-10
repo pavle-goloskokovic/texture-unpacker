@@ -343,17 +343,20 @@ const generateSprites = (filePath: string, dataExt: string): void =>
     const texture = sharp(texturePath);
     const spritesData = getSpritesData(filePath, dataExt);
 
-    const outPath = argv.outputPath ?
-        getAbsolutePath(argv.outputPath) :
-        filePath;
+    const outPath = outputPath || filePath;
+    const clean = argv.clean && existsSync(outPath);
 
-    if (argv.clean && existsSync(outPath))
+    if (clean)
     {
+        console.info(`Cleaning output directory: '${outPath}'.`);
+
         rmSync(outPath, { recursive: true, force: true });
     }
 
     if (!existsSync(outPath))
     {
+        !clean && console.info(`Creating output directory: '${outPath}'.`);
+
         mkdirSync(outPath, { recursive: true });
     }
 
@@ -385,7 +388,7 @@ const generateSprites = (filePath: string, dataExt: string): void =>
 
     Promise.all(promises).then(() =>
     {
-        console.info(`Unpacking '${texturePath}' complete.`);
+        console.info(`Unpacked '${texturePath}'.`);
     },
     (reason) =>
     {
@@ -416,8 +419,13 @@ const getFiles = (path: string): string[] =>
     return results;
 };
 
-const getDataPath = (filePath: string, dataExt: string): string =>
+const getDataPath = (filePath: string): string =>
 {
+    if (dataPath)
+    {
+        return dataPath;
+    }
+
     if (dataExt)
     {
         return filePath + dataExt;
@@ -430,7 +438,7 @@ const getDataPath = (filePath: string, dataExt: string): string =>
 
         if (existsSync(dataPath))
         {
-            console.info(`'${dataFormat}' data format found for '${filePath + textureExt}'.`);
+            console.info(`Data file found: '${dataPath}'.`);
             return dataPath;
         }
     }
@@ -438,19 +446,23 @@ const getDataPath = (filePath: string, dataExt: string): string =>
     return filePath;
 };
 
-const unpack = (filePath: string, dataExt: string): void =>
+const unpack = (filePath: string): void =>
 {
-    const dataPath = getDataPath(filePath, dataExt);
     const texturePath = filePath + textureExt;
+    const dataPath = getDataPath(filePath);
 
-    if (existsSync(dataPath) && existsSync(texturePath))
+    if (existsSync(texturePath) && existsSync(dataPath))
     {
+        console.info(`Unpacking '${texturePath}'...`);
+
         generateSprites(filePath, extname(dataPath));
     }
     else
     {
-        console.warn('Make sure you have both data and texture files'
-            + ` in the same directory for:\n'${filePath}'`);
+        console.warn('Both texture and data files must exist:'
+            + `\n'${texturePath}'`
+            + `\n'${dataPath}'`
+        );
     }
 };
 
@@ -466,12 +478,20 @@ const getAbsolutePath = (path: string): string =>
     }
 };
 
-const getExtFromDataFormat = (dataFormat: string): string =>
+const getDataExt = (): string =>
 {
+    if (dataPath)
+    {
+        console.info(`Custom data file passed: '${dataPath}'.`);
+        return extname(dataPath);
+    }
+
+    const dataFormat = argv.dataFormat;
+
     switch (dataFormat)
     {
         case '':
-            console.info('No data format passed, will check for all supported...');
+            console.info('No data format passed, checking for all supported...');
             return '';
 
         case 'json':
@@ -492,23 +512,30 @@ const argv = yargs(hideBin(process.argv))
     .options({
         inputPath: {
             alias: 'i',
-            demandOption: true,
+            demandOption: false,
             default: '',
             describe: 'Directory or sprite sheet path/name',
             type: 'string'
         },
         dataFormat: {
             alias: 'f',
-            demandOption: true,
+            demandOption: false,
             default: '',
             describe: 'Data format type (\'json\' or \'plist\')',
+            type: 'string'
+        },
+        dataPath: {
+            alias: 'd',
+            demandOption: false,
+            default: '',
+            describe: 'Custom data file path',
             type: 'string'
         },
         outputPath: {
             alias: 'o',
             demandOption: false,
             default: '',
-            describe: 'Output directory path',
+            describe: 'Custom output directory path',
             type: 'string'
         },
         clean: {
@@ -524,21 +551,20 @@ const argv = yargs(hideBin(process.argv))
     .parseSync();
 
 const inputPath = getAbsolutePath(argv.inputPath);
-const dataExt = getExtFromDataFormat(argv.dataFormat);
+const dataPath = argv.dataPath && getAbsolutePath(argv.dataPath);
+const dataExt = getDataExt();
+const outputPath = argv.outputPath && getAbsolutePath(argv.outputPath);
 
 const texturePath = appendTextureExt(inputPath);
 
 if (existsSync(texturePath))
 {
-    unpack(trimTextureExt(texturePath), dataExt);
+    unpack(trimTextureExt(texturePath));
 }
 // supports multiple file conversions
 else if (existsSync(inputPath) && lstatSync(inputPath).isDirectory())
 {
-    getFiles(inputPath).forEach((filePath) =>
-    {
-        unpack(filePath, dataExt);
-    });
+    getFiles(inputPath).forEach(unpack);
 }
 else
 {
