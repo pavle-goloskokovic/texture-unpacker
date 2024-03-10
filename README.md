@@ -63,7 +63,7 @@ Running the command below will read `json` data file, create `Sprite` directory 
 $ npm run unpack -- -i example/Sprite.png -f json
 ```
 
-In case we have multiple data formats available, like in this example, you can explicitly provide `plist` as the second argument to give it precedence:
+In case we have multiple data files available, like in this example, you can explicitly provide `plist` as the format argument to give it precedence:
 
 ```bash
 $ npm run unpack -- -i example/Sprite.png -f plist
@@ -83,14 +83,14 @@ You can also omit the sprite sheet extension `.png` when running the tool for th
 $ npm run unpack -- -i example/Sprite
 ```
 
-Providing directory path as the first argument will scan provided directory for `.png` sprite sheets with accompanying data files to unpack:
+Providing directory path as the input path will scan provided directory for `.png` sprite sheets with accompanying data files to unpack:
 
 ```bash
 $ npm run unpack -- -i example
 ```
-Note that providing `example/Sprite` as the first argument will give priority to `example/Sprite.png` sprite sheet file, rather than to the generated `example/Sprite` directory, to avoid undesired behavior if you run the tool repeatedly.
+Note that providing `example/Sprite` as the input path will give priority to `example/Sprite.png` sprite sheet file, rather than to the generated `example/Sprite` directory, to avoid undesired behavior if you run the tool repeatedly.
 
-And finally, omitting the path argument completely will scan the entire project structure to find all available `.png` sprite sheets with accompanying data files to unpack:
+And finally, omitting the input path argument completely will scan the entire project structure to find all available `.png` sprite sheets with accompanying data files to unpack:
 
 ```bash
 $ npm run unpack
