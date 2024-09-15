@@ -1,4 +1,4 @@
-import { extname, isAbsolute, join, dirname } from 'path';
+import { dirname, extname, isAbsolute, join } from 'path';
 import { existsSync, lstatSync, mkdirSync, readdirSync, readFileSync, rmSync } from 'fs';
 import * as plist from 'plist';
 import sharp from 'sharp';
