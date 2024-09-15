@@ -1,4 +1,4 @@
-import { extname, isAbsolute, join } from 'path';
+import { extname, isAbsolute, join, dirname } from 'path';
 import { existsSync, lstatSync, mkdirSync, readdirSync, readFileSync, rmSync } from 'fs';
 import * as plist from 'plist';
 import sharp from 'sharp';
@@ -362,11 +362,14 @@ const generateSprites = (filePath: string, dataExt: string): void =>
 
     const promises: Promise<void>[] = [];
 
-    for (const spriteName in spritesData)
+    for (const filename in spritesData)
     {
-        const fileOut = appendTextureExt(join(outPath, spriteName));
+        const fileOut = appendTextureExt(join(outPath, filename));
 
-        const spriteData = spritesData[spriteName];
+        const spriteData = spritesData[filename];
+
+        // create subfolders if sprite filename contains any
+        mkdirSync(dirname(fileOut), { recursive: true });
 
         promises.push(texture.clone()
             // Method order is important when rotating,
@@ -381,7 +384,7 @@ const generateSprites = (filePath: string, dataExt: string): void =>
             },
             (reason) =>
             {
-                console.error(`'${spriteName}' error:`, reason);
+                console.error(`'${filename}' error:`, reason);
             })
         );
     }
