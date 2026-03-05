@@ -159,6 +159,7 @@ const parsePlistData = (rawData: string): PlistData =>
 
     if (format !== 2 && format !== 3)
     {
+        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
         console.warn(`Possible unexpected 'plist' data format [${format}].`);
     }
 
@@ -249,6 +250,7 @@ const parseJsonData = (rawData: string): JSONArrayData =>
     }
 
     console.warn('Possible unexpected \'json\' data format.');
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return data;
 };
 
