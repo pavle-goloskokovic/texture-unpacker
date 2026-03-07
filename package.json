@@ -4,7 +4,7 @@
     "description": "TextureUnpacker Node.js TypeScript tool",
     "main": "src/index.ts",
     "scripts": {
-        "unpack": "ts-node src/index.ts"
+        "unpack": "ts-node src/cli.ts"
     },
     "repository": {
         "type": "git",

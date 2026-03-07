@@ -1,9 +1,7 @@
-import { dirname, extname, isAbsolute, join } from 'path';
-import { existsSync, lstatSync, mkdirSync, readdirSync, readFileSync, rmSync } from 'fs';
+import { dirname, extname, join } from 'path';
+import { existsSync, mkdirSync, readFileSync, rmSync } from 'fs';
 import * as plist from 'plist';
 import sharp from 'sharp';
-import yargs from 'yargs';
-import { hideBin } from 'yargs/helpers';
 
 type ArrayElement<ArrayType extends readonly unknown[]> =
     ArrayType extends readonly (infer ElementType)[] ? ElementType : never;
@@ -117,18 +115,12 @@ type SpritesData = Record<Filename, {
     extendOptions: sharp.ExtendOptions;
 }>;
 
-const textureExt = '.png';
-const textureExtRegExp = new RegExp(`${textureExt}$`, 'i');
+export const textureExt = '.png';
 const dataFormats = ['json', 'plist'] as const;
 
-const appendTextureExt = (path: string): string =>
+export const appendTextureExt = (path: string): string =>
 {
     return path + (path.toLowerCase().endsWith(textureExt) ? '' : textureExt);
-};
-
-const trimTextureExt = (path: string): string =>
-{
-    return path.replace(textureExtRegExp, '');
 };
 
 const toNumbersArray = (str: string): number[] =>
@@ -201,7 +193,6 @@ const parsePlistData = (rawData: string): PlistData =>
                 h: sourceSize[1]
             }
         };
-
     }
 
     return plistData;
@@ -339,14 +330,14 @@ const getSpritesData = (filePath: string, dataExt: string): SpritesData =>
     }
 };
 
-const generateSprites = (filePath: string, dataExt: string): void =>
+const generateSprites = (filePath: string, dataExt: string, options: UnpackOptions = {}): void =>
 {
     const texturePath = filePath + textureExt;
     const texture = sharp(texturePath);
     const spritesData = getSpritesData(filePath, dataExt);
 
-    const outPath = outputPath || filePath;
-    const clean = argv.clean && existsSync(outPath);
+    const outPath = options.outputPath || filePath;
+    const clean = options.clean && existsSync(outPath);
 
     if (clean)
     {
@@ -401,39 +392,16 @@ const generateSprites = (filePath: string, dataExt: string): void =>
     });
 };
 
-// Get the all files in the specified directory (path).
-const getFiles = (path: string): string[] =>
+const getDataPath = (filePath: string, options: UnpackOptions): string =>
 {
-    const results: string[] = [];
-    const files = readdirSync(path);
-
-    files.forEach((filename) =>
+    if (options.dataPath)
     {
-        const fullPath = join(path, filename);
-
-        if (existsSync(fullPath) && lstatSync(fullPath).isDirectory())
-        {
-            results.push(...getFiles(fullPath));
-        }
-        else if (fullPath.toLowerCase().endsWith(textureExt))
-        {
-            results.push(trimTextureExt(fullPath));
-        }
-    });
-
-    return results;
-};
-
-const getDataPath = (filePath: string): string =>
-{
-    if (dataPath)
-    {
-        return dataPath;
+        return options.dataPath;
     }
 
-    if (dataExt)
+    if (options.dataFormat)
     {
-        return filePath + dataExt;
+        return `${filePath}.${options.dataFormat}`;
     }
 
     for (let i = 0; i < dataFormats.length; i++)
@@ -451,16 +419,24 @@ const getDataPath = (filePath: string): string =>
     return filePath;
 };
 
-const unpack = (filePath: string): void =>
+interface UnpackOptions {
+    dataPath?: string;
+    dataFormat?: string;
+    outputPath?: string;
+    clean?: boolean;
+}
+
+export const unpack = (filePath: string, options: UnpackOptions = {}): void =>
 {
     const texturePath = filePath + textureExt;
-    const dataPath = getDataPath(filePath);
+    const dataPath = getDataPath(filePath, options);
+    const dataExt = getDataExt(options);
 
     if (existsSync(texturePath) && existsSync(dataPath))
     {
         console.info(`Unpacking '${texturePath}'...`);
 
-        generateSprites(filePath, extname(dataPath));
+        generateSprites(filePath, dataExt, options);
     }
     else
     {
@@ -471,27 +447,15 @@ const unpack = (filePath: string): void =>
     }
 };
 
-const getAbsolutePath = (path: string): string =>
+const getDataExt = (options: UnpackOptions): string =>
 {
-    if (isAbsolute(path))
+    if (options.dataPath)
     {
-        return path;
-    }
-    else
-    {
-        return join(__dirname, path);
-    }
-};
-
-const getDataExt = (): string =>
-{
-    if (dataPath)
-    {
-        console.info(`Custom data file passed: '${dataPath}'.`);
-        return extname(dataPath);
+        console.info(`Custom data file passed: '${options.dataPath}'.`);
+        return extname(options.dataPath);
     }
 
-    const dataFormat = argv.dataFormat;
+    const dataFormat = options.dataFormat || '';
 
     switch (dataFormat)
     {
@@ -509,69 +473,3 @@ const getDataExt = (): string =>
             process.exit(1);
     }
 };
-
-const argv = yargs(hideBin(process.argv))
-    .version()
-    .alias('v', 'version')
-    .usage('Usage: npm run unpack [-- <options>]')
-    .options({
-        inputPath: {
-            alias: 'i',
-            demandOption: false,
-            default: '',
-            describe: 'Directory or sprite sheet path/name',
-            type: 'string'
-        },
-        dataFormat: {
-            alias: 'f',
-            demandOption: false,
-            default: '',
-            describe: 'Data format type (\'json\' or \'plist\')',
-            type: 'string'
-        },
-        dataPath: {
-            alias: 'd',
-            demandOption: false,
-            default: '',
-            describe: 'Custom data file path',
-            type: 'string'
-        },
-        outputPath: {
-            alias: 'o',
-            demandOption: false,
-            default: '',
-            describe: 'Custom output directory path',
-            type: 'string'
-        },
-        clean: {
-            alias: 'c',
-            demandOption: false,
-            default: false,
-            describe: 'Clean the output directory before unpacking',
-            type: 'boolean'
-        }
-    })
-    .help()
-    .alias('h', 'help')
-    .parseSync();
-
-const inputPath = getAbsolutePath(argv.inputPath);
-const dataPath = argv.dataPath && getAbsolutePath(argv.dataPath);
-const dataExt = getDataExt();
-const outputPath = argv.outputPath && getAbsolutePath(argv.outputPath);
-
-const texturePath = appendTextureExt(inputPath);
-
-if (existsSync(texturePath))
-{
-    unpack(trimTextureExt(texturePath));
-}
-// supports multiple file conversions
-else if (existsSync(inputPath) && lstatSync(inputPath).isDirectory())
-{
-    getFiles(inputPath).forEach(unpack);
-}
-else
-{
-    console.error(`'${inputPath}' not found.`);
-}

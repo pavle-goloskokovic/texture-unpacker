@@ -21,6 +21,7 @@
             "node_modules/@types"
         ],
         "resolveJsonModule": true,
-        "downlevelIteration": true
+        "downlevelIteration": true,
+        "skipLibCheck": true
     }
 }
