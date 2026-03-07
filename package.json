@@ -2,9 +2,9 @@
     "name": "texture-unpacker",
     "version": "0.1.0",
     "description": "TextureUnpacker Node.js TypeScript tool",
-    "main": "unpacker.ts",
+    "main": "src/unpacker.ts",
     "scripts": {
-        "unpack": "ts-node unpacker.ts"
+        "unpack": "ts-node src/unpacker.ts"
     },
     "repository": {
         "type": "git",
