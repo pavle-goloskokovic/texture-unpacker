@@ -107,7 +107,7 @@ else if (existsSync(inputPath) && lstatSync(inputPath).isDirectory())
 {
     getFiles(inputPath).forEach((filePath) =>
     {
-        unpack(filePath, options);
+        unpack(filePath, { ...options });
     });
 }
 else

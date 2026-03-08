@@ -446,7 +446,7 @@ export const unpack = (inputPath: string, options: UnpackOptions = {}): void =>
 
     if (!dataPath)
     {
-        console.info(`Skipping '${texturePath}' – no data file.`);
+        console.info(`No data file found, skipping '${texturePath}'.`);
     }
     else if (existsSync(texturePath) && existsSync(dataPath))
     {
