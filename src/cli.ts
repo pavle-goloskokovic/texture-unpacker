@@ -46,37 +46,37 @@ const getAbsolutePath = (path: string): string =>
     }
     else
     {
-        return join(__dirname, path);
+        return join(process.cwd(), path);
     }
 };
 
 const argv = yargs(hideBin(process.argv))
     .version()
     .alias('v', 'version')
-    .usage('Usage: npm run unpack [-- <options>]')
+    .usage('Usage: texture-unpacker [options]')
     .options({
-        inputPath: {
-            alias: 'i',
+        sheet: {
+            alias: 's',
             demandOption: false,
             default: '',
             describe: 'Directory or sprite sheet path/name',
             type: 'string'
         },
-        dataFormat: {
+        format: {
             alias: 'f',
             demandOption: false,
             default: '',
             describe: 'Data format type (\'json\' or \'plist\')',
             type: 'string'
         },
-        dataPath: {
+        data: {
             alias: 'd',
             demandOption: false,
             default: '',
             describe: 'Custom data file path',
             type: 'string'
         },
-        outputPath: {
+        output: {
             alias: 'o',
             demandOption: false,
             default: '',
@@ -95,11 +95,11 @@ const argv = yargs(hideBin(process.argv))
     .alias('h', 'help')
     .parseSync();
 
-const inputPath = getAbsolutePath(argv.inputPath);
+const inputPath = getAbsolutePath(argv.sheet);
 const options = {
-    dataPath: argv.dataPath && getAbsolutePath(argv.dataPath),
-    dataFormat: argv.dataFormat,
-    outputPath: argv.outputPath && getAbsolutePath(argv.outputPath),
+    dataPath: argv.data && getAbsolutePath(argv.data),
+    dataFormat: argv.format,
+    outputPath: argv.output && getAbsolutePath(argv.output),
     clean: argv.clean
 };
 const texturePath = appendTextureExt(inputPath);
