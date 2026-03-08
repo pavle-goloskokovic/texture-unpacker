@@ -10,12 +10,7 @@ import {
     unpack
 } from './index';
 
-const trimTextureExt = (path: string): string =>
-{
-    return path.replace(new RegExp(`${textureExt}$`, 'i'), '');
-};
-
-// Get the all files in the specified directory (path).
+// Get all files with texture ext in the specified path (recursively).
 const getFiles = (path: string): string[] =>
 {
     const results: string[] = [];
@@ -31,7 +26,7 @@ const getFiles = (path: string): string[] =>
         }
         else if (fullPath.toLowerCase().endsWith(textureExt))
         {
-            results.push(trimTextureExt(fullPath));
+            results.push(fullPath);
         }
     });
 
@@ -106,7 +101,7 @@ const texturePath = appendTextureExt(inputPath);
 
 if (existsSync(texturePath))
 {
-    unpack(trimTextureExt(texturePath), options);
+    unpack(inputPath, options);
 }
 // supports multiple file conversions
 else if (existsSync(inputPath) && lstatSync(inputPath).isDirectory())

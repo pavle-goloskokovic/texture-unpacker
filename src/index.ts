@@ -116,11 +116,17 @@ type SpritesData = Record<Filename, {
 }>;
 
 export const textureExt = '.png';
+const textureExtRegExp = new RegExp(`${textureExt}$`, 'i');
 const dataFormats = ['json', 'plist'] as const;
 
 export const appendTextureExt = (path: string): string =>
 {
     return path + (path.toLowerCase().endsWith(textureExt) ? '' : textureExt);
+};
+
+const trimTextureExt = (path: string): string =>
+{
+    return path.replace(textureExtRegExp, '');
 };
 
 const toNumbersArray = (str: string): number[] =>
@@ -426,9 +432,10 @@ interface UnpackOptions {
     clean?: boolean;
 }
 
-export const unpack = (filePath: string, options: UnpackOptions = {}): void =>
+export const unpack = (inputPath: string, options: UnpackOptions = {}): void =>
 {
-    const texturePath = appendTextureExt(filePath);
+    const filePath = trimTextureExt(inputPath);
+    const texturePath = appendTextureExt(inputPath);
     const dataPath = getDataPath(filePath, options);
     const dataExt = getDataExt(options);
 
