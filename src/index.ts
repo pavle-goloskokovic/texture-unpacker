@@ -332,7 +332,7 @@ const getSpritesData = (filePath: string, dataExt: string): SpritesData =>
 
 const generateSprites = (filePath: string, dataExt: string, options: UnpackOptions = {}): void =>
 {
-    const texturePath = filePath + textureExt;
+    const texturePath = appendTextureExt(filePath);
     const texture = sharp(texturePath);
     const spritesData = getSpritesData(filePath, dataExt);
 
@@ -416,7 +416,7 @@ const getDataPath = (filePath: string, options: UnpackOptions): string =>
         }
     }
 
-    return filePath;
+    return '';
 };
 
 interface UnpackOptions {
@@ -428,7 +428,7 @@ interface UnpackOptions {
 
 export const unpack = (filePath: string, options: UnpackOptions = {}): void =>
 {
-    const texturePath = filePath + textureExt;
+    const texturePath = appendTextureExt(filePath);
     const dataPath = getDataPath(filePath, options);
     const dataExt = getDataExt(options);
 
