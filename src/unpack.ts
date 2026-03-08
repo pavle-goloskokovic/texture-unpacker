@@ -444,7 +444,11 @@ export const unpack = (inputPath: string, options: UnpackOptions = {}): void =>
         options.dataPath = getDataPath(filePath, options);
     const dataExt = getDataExt(options);
 
-    if (existsSync(texturePath) && existsSync(dataPath))
+    if (!dataPath)
+    {
+        console.info(`Skipping '${texturePath}' – no data file.`);
+    }
+    else if (existsSync(texturePath) && existsSync(dataPath))
     {
         console.info(`Unpacking '${texturePath}'...`);
 
