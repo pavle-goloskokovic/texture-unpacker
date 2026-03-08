@@ -18,8 +18,7 @@
     },
     "scripts": {
         "build": "tsup src/index.ts --format cjs,esm --outDir dist --dts --minify --clean && tsup src/cli.ts --format cjs --outDir dist --minify --no-dts",
-        "prepare": "npm run build",
-        "unpack": "node dist/cli.js"
+        "prepare": "npm run build"
     },
     "repository": {
         "type": "git",

@@ -402,13 +402,17 @@ const getDataPath = (filePath: string, options: UnpackOptions): string =>
 {
     if (options.dataPath)
     {
+        console.info(`Custom data file passed: '${options.dataPath}'.`);
         return options.dataPath;
     }
 
     if (options.dataFormat)
     {
+        console.info(`'${options.dataFormat}' data format passed.`);
         return `${filePath}.${options.dataFormat}`;
     }
+
+    console.info('No data format passed, checking for all supported...');
 
     for (let i = 0; i < dataFormats.length; i++)
     {
@@ -436,7 +440,8 @@ export const unpack = (inputPath: string, options: UnpackOptions = {}): void =>
 {
     const filePath = trimTextureExt(inputPath);
     const texturePath = appendTextureExt(inputPath);
-    const dataPath = getDataPath(filePath, options);
+    const dataPath =
+        options.dataPath = getDataPath(filePath, options);
     const dataExt = getDataExt(options);
 
     if (existsSync(texturePath) && existsSync(dataPath))
@@ -458,7 +463,6 @@ const getDataExt = (options: UnpackOptions): string =>
 {
     if (options.dataPath)
     {
-        console.info(`Custom data file passed: '${options.dataPath}'.`);
         return extname(options.dataPath);
     }
 
@@ -467,12 +471,10 @@ const getDataExt = (options: UnpackOptions): string =>
     switch (dataFormat)
     {
         case '':
-            console.info('No data format passed, checking for all supported...');
             return '';
 
         case 'json':
         case 'plist':
-            console.info(`'${dataFormat}' data format passed.`);
             return `.${dataFormat}`;
 
         default:
