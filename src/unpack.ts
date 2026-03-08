@@ -425,7 +425,7 @@ const getDataPath = (filePath: string, options: UnpackOptions): string =>
     return '';
 };
 
-interface UnpackOptions {
+export interface UnpackOptions {
     dataPath?: string;
     dataFormat?: string;
     outputPath?: string;

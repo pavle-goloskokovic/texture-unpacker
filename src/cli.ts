@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 import { existsSync, lstatSync, readdirSync } from 'fs';
 import { isAbsolute, join } from 'path';
 import yargs from 'yargs';
