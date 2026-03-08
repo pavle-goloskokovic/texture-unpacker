@@ -8,7 +8,7 @@ import {
     appendTextureExt,
     textureExt,
     unpack
-} from './index';
+} from './unpack';
 
 // Get all files with texture ext in the specified path (recursively).
 const getFiles = (path: string): string[] =>
