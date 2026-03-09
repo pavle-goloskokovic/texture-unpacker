@@ -101,14 +101,14 @@ const texturePath = appendTextureExt(options.sheet);
 
 if (existsSync(texturePath))
 {
-    unpack(options);
+    void unpack(options);
 }
 // supports multiple file conversions
 else if (existsSync(options.sheet) && lstatSync(options.sheet).isDirectory())
 {
     getFiles(options.sheet).forEach((filePath) =>
     {
-        unpack({ ...options, sheet: filePath });
+        void unpack({ ...options, sheet: filePath });
     });
 }
 else

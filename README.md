@@ -72,7 +72,11 @@ unpack({
     data: 'assets/Sprite.json', // Custom data file path
     output: 'assets/sprites',   // Custom output directory path
     clean: true                 // Clean the output directory before unpacking
-} as UnpackOptions);
+} as UnpackOptions
+).then(() =>
+{
+    console.log('Texture unpacked.');
+});
 ```
 
 ## Example

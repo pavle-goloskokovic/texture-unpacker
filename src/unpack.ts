@@ -336,7 +336,7 @@ const getSpritesData = (filePath: string, dataExt: string): SpritesData =>
     }
 };
 
-const generateSprites = (filePath: string, dataExt: string, options: UnpackOptions = {}): void =>
+const generateSprites = (filePath: string, dataExt: string, options: UnpackOptions = {}): Promise<void> =>
 {
     const texturePath = appendTextureExt(filePath);
     const texture = sharp(texturePath);
@@ -388,7 +388,7 @@ const generateSprites = (filePath: string, dataExt: string, options: UnpackOptio
         );
     }
 
-    Promise.all(promises).then(() =>
+    return Promise.all(promises).then(() =>
     {
         console.info(`Unpacked '${texturePath}'.`);
     },
@@ -437,7 +437,7 @@ export interface UnpackOptions {
     clean?: boolean;
 }
 
-export const unpack = (options?: UnpackOptions): void =>
+export const unpack = (options?: UnpackOptions): Promise<void> =>
 {
     options = Object.assign({
         sheet: '',
@@ -456,12 +456,12 @@ export const unpack = (options?: UnpackOptions): void =>
     if (!dataPath)
     {
         console.info(`No data file found, skipping '${texturePath}'.`);
+        return Promise.resolve();
     }
     else if (existsSync(texturePath) && existsSync(dataPath))
     {
         console.info(`Unpacking '${texturePath}'...`);
-
-        generateSprites(filePath, dataExt, options);
+        return generateSprites(filePath, dataExt, options);
     }
     else
     {
@@ -469,6 +469,7 @@ export const unpack = (options?: UnpackOptions): void =>
             + `\n'${texturePath}'`
             + `\n'${dataPath}'`
         );
+        return Promise.resolve();
     }
 };
 
