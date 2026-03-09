@@ -8,6 +8,7 @@ import {
     textureExt,
     unpack
 } from './unpack';
+import type { UnpackOptions } from './unpack';
 
 // Get all files with texture ext in the specified path (recursively).
 const getFiles = (path: string): string[] =>
@@ -89,28 +90,28 @@ const argv = yargs(hideBin(process.argv))
     .alias('h', 'help')
     .parseSync();
 
-const inputPath = getAbsolutePath(argv.sheet);
 const options = {
+    inputPath: getAbsolutePath(argv.sheet),
     dataPath: argv.data && getAbsolutePath(argv.data),
     dataFormat: argv.format,
     outputPath: argv.output && getAbsolutePath(argv.output),
     clean: argv.clean
-};
-const texturePath = appendTextureExt(inputPath);
+} as UnpackOptions;
+const texturePath = appendTextureExt(options.inputPath);
 
 if (existsSync(texturePath))
 {
-    unpack(inputPath, options);
+    unpack(options);
 }
 // supports multiple file conversions
-else if (existsSync(inputPath) && lstatSync(inputPath).isDirectory())
+else if (existsSync(options.inputPath) && lstatSync(options.inputPath).isDirectory())
 {
-    getFiles(inputPath).forEach((filePath) =>
+    getFiles(options.inputPath).forEach((filePath) =>
     {
-        unpack(filePath, { ...options });
+        unpack({ ...options, inputPath: filePath });
     });
 }
 else
 {
-    console.error(`'${inputPath}' not found.`);
+    console.error(`'${options.inputPath}' not found.`);
 }

@@ -430,16 +430,25 @@ const getDataPath = (filePath: string, options: UnpackOptions): string =>
 };
 
 export interface UnpackOptions {
+    inputPath?: string;
     dataPath?: string;
     dataFormat?: string;
     outputPath?: string;
     clean?: boolean;
 }
 
-export const unpack = (inputPath: string, options: UnpackOptions = {}): void =>
+export const unpack = (options?: UnpackOptions): void =>
 {
-    const filePath = trimTextureExt(inputPath);
-    const texturePath = appendTextureExt(inputPath);
+    options = Object.assign({
+        inputPath: '',
+        dataPath: '',
+        dataFormat: '',
+        outputPath: '',
+        clean: false
+    } as UnpackOptions, options);
+
+    const filePath = trimTextureExt(options.inputPath);
+    const texturePath = appendTextureExt(options.inputPath);
     const dataPath =
         options.dataPath = getDataPath(filePath, options);
     const dataExt = getDataExt(options);
