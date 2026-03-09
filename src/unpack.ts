@@ -342,7 +342,7 @@ const generateSprites = (filePath: string, dataExt: string, options: UnpackOptio
     const texture = sharp(texturePath);
     const spritesData = getSpritesData(filePath, dataExt);
 
-    const outPath = options.outputPath || filePath;
+    const outPath = options.output || filePath;
     const clean = options.clean && existsSync(outPath);
 
     if (clean)
@@ -400,16 +400,16 @@ const generateSprites = (filePath: string, dataExt: string, options: UnpackOptio
 
 const getDataPath = (filePath: string, options: UnpackOptions): string =>
 {
-    if (options.dataPath)
+    if (options.data)
     {
-        console.info(`Custom data file passed: '${options.dataPath}'.`);
-        return options.dataPath;
+        console.info(`Custom data file passed: '${options.data}'.`);
+        return options.data;
     }
 
-    if (options.dataFormat)
+    if (options.format)
     {
-        console.info(`'${options.dataFormat}' data format passed.`);
-        return `${filePath}.${options.dataFormat}`;
+        console.info(`'${options.format}' data format passed.`);
+        return `${filePath}.${options.format}`;
     }
 
     console.info('No data format passed, checking for all supported...');
@@ -430,27 +430,27 @@ const getDataPath = (filePath: string, options: UnpackOptions): string =>
 };
 
 export interface UnpackOptions {
-    inputPath?: string;
-    dataPath?: string;
-    dataFormat?: string;
-    outputPath?: string;
+    sheet?: string;
+    format?: string;
+    data?: string;
+    output?: string;
     clean?: boolean;
 }
 
 export const unpack = (options?: UnpackOptions): void =>
 {
     options = Object.assign({
-        inputPath: '',
-        dataPath: '',
-        dataFormat: '',
-        outputPath: '',
+        sheet: '',
+        format: '',
+        data: '',
+        output: '',
         clean: false
     } as UnpackOptions, options);
 
-    const filePath = trimTextureExt(options.inputPath);
-    const texturePath = appendTextureExt(options.inputPath);
+    const filePath = trimTextureExt(options.sheet);
+    const texturePath = appendTextureExt(options.sheet);
     const dataPath =
-        options.dataPath = getDataPath(filePath, options);
+        options.data = getDataPath(filePath, options);
     const dataExt = getDataExt(options);
 
     if (!dataPath)
@@ -474,12 +474,12 @@ export const unpack = (options?: UnpackOptions): void =>
 
 const getDataExt = (options: UnpackOptions): string =>
 {
-    if (options.dataPath)
+    if (options.data)
     {
-        return extname(options.dataPath);
+        return extname(options.data);
     }
 
-    const dataFormat = options.dataFormat || '';
+    const dataFormat = options.format || '';
 
     switch (dataFormat)
     {

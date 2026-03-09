@@ -67,11 +67,11 @@ import type { UnpackOptions } from 'texture-unpacker';
 
 // example call showing all options
 unpack({
-    inputPath: 'assets/Sprite.png', // Directory or sprite sheet path/name
-    dataPath: 'assets/Sprite.json', // Custom data file path
-    dataFormat: 'json',             // Data format type ('json' or 'plist')
-    outputPath: 'assets/sprites',   // Custom output directory path
-    clean: true                     // Clean the output directory before unpacking
+    sheet: 'assets/Sprite.png', // Directory or sprite sheet path/name
+    format: 'json',             // Data format type ('json' or 'plist')
+    data: 'assets/Sprite.json', // Custom data file path
+    output: 'assets/sprites',   // Custom output directory path
+    clean: true                 // Clean the output directory before unpacking
 } as UnpackOptions);
 ```
 
