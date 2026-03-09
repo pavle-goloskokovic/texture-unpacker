@@ -90,28 +90,28 @@ const argv = yargs(hideBin(process.argv))
     .alias('h', 'help')
     .parseSync();
 
+const inputPath = getAbsolutePath(argv.sheet);
 const options = {
-    sheet: getAbsolutePath(argv.sheet),
     format: argv.format,
     data: argv.data && getAbsolutePath(argv.data),
     output: argv.output && getAbsolutePath(argv.output),
     clean: argv.clean
 } as UnpackOptions;
-const texturePath = appendTextureExt(options.sheet);
+const texturePath = appendTextureExt(inputPath);
 
 if (existsSync(texturePath))
 {
-    void unpack(options);
+    void unpack(inputPath, options);
 }
 // supports multiple file conversions
-else if (existsSync(options.sheet) && lstatSync(options.sheet).isDirectory())
+else if (existsSync(inputPath) && lstatSync(inputPath).isDirectory())
 {
-    getFiles(options.sheet).forEach((filePath) =>
+    getFiles(inputPath).forEach((filePath) =>
     {
-        void unpack({ ...options, sheet: filePath });
+        void unpack(filePath, options);
     });
 }
 else
 {
-    console.error(`'${options.sheet}' not found.`);
+    console.error(`'${inputPath}' not found.`);
 }
