@@ -4,7 +4,7 @@
 
 ## Overview
 
-TextureUnpacker is a Node.js tool written in TypeScript which can be used to unpack `.png` sprite sheets packed with [TexturePacker](https://www.codeandweb.com/texturepacker/) into separate sprites if provided with corresponding `.json` or `.plist` data file.
+[TextureUnpacker](https://github.com/pavle-goloskokovic/texture-unpacker) is a Node.js tool written in TypeScript which can be used to unpack `.png` sprite sheets packed with [TexturePacker](https://www.codeandweb.com/texturepacker/) into separate sprites if provided with corresponding `.json` or `.plist` data file.
 
 ### Supported data formats:
 
@@ -17,16 +17,6 @@ TextureUnpacker is a Node.js tool written in TypeScript which can be used to unp
 - Cocos2d-x
 - Cocos2d
 - Cocos2d v2 (old, CocoStudio)
-
-## Contributing
-
-If you have noticed a bug or would like us to support additional data formats, feel free to [open an issue](https://github.com/pavle-goloskokovic/texture-unpacker/issues) describing said bug or requested format (and provide matching sprite sheet and data files), or even better [open a pull request](https://github.com/pavle-goloskokovic/texture-unpacker/pulls) with code changes which fixes the bug or adds support for new data format.
-
-## Dependencies
-- [sharp](https://github.com/lovell/sharp)
-- [plist.js](https://github.com/TooTallNate/plist.js)
-- [TypeScript](https://www.typescriptlang.org/)
-- [Node.js](https://nodejs.org/en/)
 
 ## Installation
 
@@ -145,5 +135,16 @@ If you want to clean the output directory before unpacking you can indicate that
 ```bash
 texture-unpacker -s example/Sprite -c
 ```
+
+## Contributing
+
+If you have noticed a bug or would like us to support additional data formats, feel free to [open an issue](https://github.com/pavle-goloskokovic/texture-unpacker/issues) describing said bug or requested format (and provide matching sprite sheet and data files), or even better [open a pull request](https://github.com/pavle-goloskokovic/texture-unpacker/pulls) with code changes which fixes the bug or adds support for new data format.
+
+## Dependencies
+- [sharp](https://github.com/lovell/sharp)
+- [plist.js](https://github.com/TooTallNate/plist.js)
+- [TypeScript](https://www.typescriptlang.org/)
+- [Node.js](https://nodejs.org/en/)
+
 ___
 ###### Originally ported from [onepill/texture_unpacker_scirpt](https://github.com/onepill/texture_unpacker_scirpt) archive written in python.
