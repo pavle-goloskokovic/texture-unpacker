@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 import { existsSync, lstatSync, readdirSync } from 'fs';
-import { isAbsolute, join } from 'path';
+import { join } from 'path';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import {
     appendTextureExt,
+    getAbsolutePath,
     textureExt,
     unpack
 } from './unpack';
-import type { UnpackOptions } from './unpack';
 
 // Get all files with texture ext in the specified path (recursively).
 const getFiles = (path: string): string[] =>
@@ -31,18 +31,6 @@ const getFiles = (path: string): string[] =>
     });
 
     return results;
-};
-
-const getAbsolutePath = (path: string): string =>
-{
-    if (isAbsolute(path))
-    {
-        return path;
-    }
-    else
-    {
-        return join(process.cwd(), path);
-    }
 };
 
 const argv = yargs(hideBin(process.argv))
@@ -91,24 +79,18 @@ const argv = yargs(hideBin(process.argv))
     .parseSync();
 
 const inputPath = getAbsolutePath(argv.sheet);
-const options = {
-    format: argv.format,
-    data: argv.data && getAbsolutePath(argv.data),
-    output: argv.output && getAbsolutePath(argv.output),
-    clean: argv.clean
-} as UnpackOptions;
 const texturePath = appendTextureExt(inputPath);
 
 if (existsSync(texturePath))
 {
-    void unpack(inputPath, options);
+    void unpack(inputPath, argv);
 }
 // supports multiple file conversions
 else if (existsSync(inputPath) && lstatSync(inputPath).isDirectory())
 {
     getFiles(inputPath).forEach((filePath) =>
     {
-        void unpack(filePath, options);
+        void unpack(filePath, argv);
     });
 }
 else

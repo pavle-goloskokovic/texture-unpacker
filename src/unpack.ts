@@ -1,4 +1,4 @@
-import { dirname, extname, join } from 'path';
+import { dirname, extname, isAbsolute, join } from 'path';
 import { existsSync, mkdirSync, readFileSync, rmSync } from 'fs';
 import * as plist from 'plist';
 import sharp from 'sharp';
@@ -438,12 +438,17 @@ export interface UnpackOptions {
 
 export const unpack = (sheet: string, options?: UnpackOptions): Promise<void> =>
 {
+    sheet = getAbsolutePath(sheet);
+
     options = Object.assign({
         format: '',
         data: '',
         output: '',
         clean: false
     } as UnpackOptions, options);
+
+    options.data &&= getAbsolutePath(options.data);
+    options.output &&= getAbsolutePath(options.output);
 
     const filePath = trimTextureExt(sheet);
     const texturePath = appendTextureExt(sheet);
@@ -469,6 +474,11 @@ export const unpack = (sheet: string, options?: UnpackOptions): Promise<void> =>
         );
         return Promise.resolve();
     }
+};
+
+export const getAbsolutePath = (path: string): string =>
+{
+    return isAbsolute(path) ? path : join(process.cwd(), path);
 };
 
 const getDataExt = (options: UnpackOptions): string =>
