@@ -1,7 +1,7 @@
 {
     "name": "texture-unpacker",
     "version": "1.0.0",
-    "description": "TextureUnpacker Node.js TypeScript tool",
+    "description": "TextureUnpacker – a Node.js tool written in TypeScript to unpack sprite sheets packed with TexturePacker into separate sprites.",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
     "files": [
